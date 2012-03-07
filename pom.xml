@@ -20,7 +20,24 @@
                     <configuration>
                         <archive>
                             <addMavenDescriptor>false</addMavenDescriptor>
+                            <manifest>
+                                <mainClass>org.widgetrefinery.wallpaper.Cli</mainClass>
+                            </manifest>
                         </archive>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <mainClass>org.widgetrefinery.wallpaper.Cli</mainClass>
+                            </manifest>
+                        </archive>
+                        <descriptorRefs>
+                            <Value>jar-with-dependencies</Value>
+                        </descriptorRefs>
                     </configuration>
                 </plugin>
             </plugins>
