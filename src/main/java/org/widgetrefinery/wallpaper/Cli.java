@@ -21,6 +21,8 @@ import org.widgetrefinery.util.clParser.BooleanArgumentType;
 import org.widgetrefinery.util.clParser.CLParser;
 import org.widgetrefinery.util.clParser.StringArgumentType;
 import org.widgetrefinery.wallpaper.common.ImageUtil;
+import org.widgetrefinery.wallpaper.os.OSSupport;
+import org.widgetrefinery.wallpaper.os.OSUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -45,9 +47,9 @@ public class Cli {
                                          new Argument("f|force", new BooleanArgumentType(), "Override the output file if it exists."),
                                          new Argument("i|input", new StringArgumentType(), "Input image filename."),
                                          new Argument("o|output", new StringArgumentType(), "Output image filename."),
-                                         new Argument("r|registry",
+                                         new Argument("u|update_os",
                                                       new BooleanArgumentType(),
-                                                      "Update the Windows registry to use the output image as the wallpaper."));
+                                                      "Update the OS to use the output image as the wallpaper. Only certain OSes\nare supported"));
 
         if (!clParser.hasArguments()) {
             System.err.println(clParser.getHelpMessage(Cli.class, null, "Reformats an image suitable for use as a multi-monitor wallpaper."));
@@ -71,26 +73,12 @@ public class Cli {
         BufferedImage img = imageUtil.formatImage(inputFile);
         imageUtil.saveImage(img, outputFile, Boolean.TRUE == clParser.getValue("force"));
 
-        if (Boolean.TRUE == clParser.getValue("registry")) {
-            exec("reg", "add", "HKCU\\Control Panel\\Desktop", "/V", "Wallpaper", "/T", "REG_SZ", "/F", "/D", outputFile.getAbsolutePath());
-            exec("reg", "add", "HKCU\\Control Panel\\Desktop", "/V", "WallpaperStyle", "/T", "REG_SZ", "/F", "/D", "0"); //0: center, 2: stretch
-            exec("reg", "add", "HKCU\\Control Panel\\Desktop", "/V", "TileWallpaper", "/T", "REG_SZ", "/F", "/D", "1"); //0: center, 1: tile
-        }
-        exec("rundll32", "user32.dll,", "UpdatePerUserSystemParameters");
-    }
-
-    protected void exec(final String... cmd) throws IOException, InterruptedException {
-        Runtime rt = Runtime.getRuntime();
-        Process p = rt.exec(cmd);
-        int result = p.waitFor();
-        if (0 != result) {
-            StringBuilder sb = new StringBuilder();
-            String delimit = "";
-            for (String cmdArg : cmd) {
-                sb.append(delimit).append('"').append(cmdArg).append('"');
-                delimit = " ";
+        OSSupport osSupport = OSUtil.getOSSupport();
+        if (null != osSupport) {
+            if (Boolean.TRUE == clParser.getValue("registry")) {
+                osSupport.updateWallpaperSettings(outputFile);
             }
-            throw new RuntimeException("command returned with status " + result + ": " + sb.toString());
+            osSupport.reloadWallpaperSettings();
         }
     }
 }
