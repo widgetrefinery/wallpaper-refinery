@@ -37,22 +37,29 @@ public class Cli {
             Cli cli = new Cli();
             cli.processCommandLine(args);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            if (null != System.getProperty("debug")) {
+                e.printStackTrace(System.err);
+            } else {
+                System.err.println(e.getMessage());
+            }
             System.exit(-1);
         }
     }
 
     protected void processCommandLine(final String[] args) throws IOException, InterruptedException {
         CLParser clParser = new CLParser(args,
+                                         new Argument("c|configure",
+                                                      new BooleanArgumentType(),
+                                                      "Configure the OS to use the output image as the wallpaper. Only certain OSes\nare supported"),
                                          new Argument("f|force", new BooleanArgumentType(), "Override the output file if it exists."),
                                          new Argument("i|input", new StringArgumentType(), "Input image filename."),
                                          new Argument("o|output", new StringArgumentType(), "Output image filename."),
-                                         new Argument("u|update_os",
+                                         new Argument("r|refresh",
                                                       new BooleanArgumentType(),
-                                                      "Update the OS to use the output image as the wallpaper. Only certain OSes\nare supported"));
+                                                      "Instruct the OS to reload the user settings. Only certain OSes\nare supported"));
 
         if (!clParser.hasArguments()) {
-            System.err.println(clParser.getHelpMessage(Cli.class, null, "Reformats an image suitable for use as a multi-monitor wallpaper."));
+            System.err.println(clParser.getHelpMessage(Cli.class, null, "Reformats an image for use as a multi-monitor wallpaper."));
             System.exit(0);
         }
 
@@ -73,12 +80,20 @@ public class Cli {
         BufferedImage img = imageUtil.formatImage(inputFile);
         imageUtil.saveImage(img, outputFile, Boolean.TRUE == clParser.getValue("force"));
 
-        OSSupport osSupport = OSUtil.getOSSupport();
-        if (null != osSupport) {
-            if (Boolean.TRUE == clParser.getValue("registry")) {
-                osSupport.updateWallpaperSettings(outputFile);
+        Boolean configure = clParser.getValue("configure");
+        Boolean refresh = clParser.getValue("refresh");
+        if (Boolean.TRUE == configure || Boolean.TRUE == refresh) {
+            OSSupport osSupport = OSUtil.getOSSupport();
+            if (null != osSupport) {
+                if (configure) {
+                    osSupport.updateWallpaperSettings(outputFile);
+                }
+                if (refresh) {
+                    osSupport.reloadWallpaperSettings();
+                }
+            } else {
+                System.err.println("Sorry, we do not support updating your OS.");
             }
-            osSupport.reloadWallpaperSettings();
         }
     }
 }
