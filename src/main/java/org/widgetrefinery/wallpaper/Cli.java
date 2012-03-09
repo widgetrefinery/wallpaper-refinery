@@ -85,10 +85,10 @@ public class Cli {
         if (Boolean.TRUE == configure || Boolean.TRUE == refresh) {
             OSSupport osSupport = OSUtil.getOSSupport();
             if (null != osSupport) {
-                if (configure) {
+                if (Boolean.TRUE == configure) {
                     osSupport.updateWallpaperSettings(outputFile);
                 }
-                if (refresh) {
+                if (Boolean.TRUE == refresh) {
                     osSupport.reloadWallpaperSettings();
                 }
             } else {
