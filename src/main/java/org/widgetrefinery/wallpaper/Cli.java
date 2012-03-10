@@ -37,10 +37,10 @@ public class Cli {
             Cli cli = new Cli();
             cli.processCommandLine(args);
         } catch (Exception e) {
-            if (null != System.getProperty("debug")) {
-                e.printStackTrace(System.err);
-            } else {
+            if (null == System.getProperty("debug")) {
                 System.err.println(e.getMessage());
+            } else {
+                e.printStackTrace(System.err);
             }
             System.exit(-1);
         }
@@ -50,15 +50,16 @@ public class Cli {
         CLParser clParser = new CLParser(args,
                                          new Argument("c|configure",
                                                       new BooleanArgumentType(),
-                                                      "Configure the OS to use the output image as the wallpaper. Only certain OSes\nare supported"),
+                                                      "Configure the OS to use the output image as the wallpaper. Only certain OS'es are supported"),
                                          new Argument("f|force", new BooleanArgumentType(), "Override the output file if it exists."),
+                                         new Argument("h|help", new BooleanArgumentType(), "Displays this help message."),
                                          new Argument("i|input", new StringArgumentType(), "Input image filename."),
                                          new Argument("o|output", new StringArgumentType(), "Output image filename."),
                                          new Argument("r|refresh",
                                                       new BooleanArgumentType(),
-                                                      "Instruct the OS to reload the user settings. Only certain OSes\nare supported"));
+                                                      "Instruct the OS to reload the user settings. Only certain OS'es are supported"));
 
-        if (!clParser.hasArguments()) {
+        if (!clParser.hasArguments() || Boolean.TRUE == clParser.getValue("help")) {
             System.err.println(clParser.getHelpMessage(Cli.class, null, "Reformats an image for use as a multi-monitor wallpaper."));
             System.exit(0);
         }
@@ -80,15 +81,15 @@ public class Cli {
         BufferedImage img = imageUtil.formatImage(inputFile);
         imageUtil.saveImage(img, outputFile, Boolean.TRUE == clParser.getValue("force"));
 
-        Boolean configure = clParser.getValue("configure");
-        Boolean refresh = clParser.getValue("refresh");
-        if (Boolean.TRUE == configure || Boolean.TRUE == refresh) {
+        boolean configure = Boolean.TRUE == clParser.getValue("configure");
+        boolean refresh = Boolean.TRUE == clParser.getValue("refresh");
+        if (configure || refresh) {
             OSSupport osSupport = OSUtil.getOSSupport();
             if (null != osSupport) {
-                if (Boolean.TRUE == configure) {
+                if (configure) {
                     osSupport.updateWallpaperSettings(outputFile);
                 }
-                if (Boolean.TRUE == refresh) {
+                if (refresh) {
                     osSupport.reloadWallpaperSettings();
                 }
             } else {
