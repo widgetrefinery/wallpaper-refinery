@@ -1,4 +1,4 @@
-package org.widgetrefinery.wallpaper;/*
+/*
  * Copyright (C) 2012  Widget Refinery
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,6 +15,8 @@ package org.widgetrefinery.wallpaper;/*
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package org.widgetrefinery.wallpaper;
+
 import org.widgetrefinery.util.StringUtil;
 import org.widgetrefinery.util.clParser.Argument;
 import org.widgetrefinery.util.clParser.BooleanArgumentType;
@@ -23,24 +25,40 @@ import org.widgetrefinery.util.clParser.StringArgumentType;
 import org.widgetrefinery.wallpaper.common.ImageUtil;
 import org.widgetrefinery.wallpaper.os.OSSupport;
 import org.widgetrefinery.wallpaper.os.OSUtil;
+import org.widgetrefinery.wallpaper.swing.MainWindow;
 
+import javax.swing.SwingUtilities;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Since: 2/20/12 9:12 PM
  */
 public class Cli {
     public static void main(String[] args) {
+        boolean debugMode = null != System.getProperty("debug");
+
+        if (debugMode) {
+            Handler handler = new ConsoleHandler();
+            handler.setLevel(Level.FINEST);
+            Logger logger = Logger.getLogger("org.widgetrefinery");
+            logger.setLevel(Level.FINEST);
+            logger.addHandler(handler);
+        }
+
         try {
             Cli cli = new Cli();
             cli.processCommandLine(args);
         } catch (Exception e) {
-            if (null == System.getProperty("debug")) {
-                System.err.println(e.getMessage());
-            } else {
+            if (debugMode) {
                 e.printStackTrace(System.err);
+            } else {
+                System.err.println(e.getMessage());
             }
             System.exit(-1);
         }
@@ -70,13 +88,23 @@ public class Cli {
                                                       new BooleanArgumentType(),
                                                       "Instruct the OS to reload the user settings. Only certain OS'es are supported"));
 
-        if (!clParser.hasArguments() || Boolean.TRUE == clParser.getValue("help")) {
+        if (Boolean.TRUE == clParser.getValue("help")) {
             System.err.println(clParser.getHelpMessage(Cli.class, null, "Reformats an image for use as a multi-monitor wallpaper."));
             System.exit(0);
         }
         if (Boolean.TRUE == clParser.getValue("license")) {
             clParser.displayLicense(System.out);
             System.exit(0);
+        }
+        if (!clParser.hasArguments()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    MainWindow mainWindow = new MainWindow();
+                    mainWindow.setVisible(true);
+                }
+            });
+            return;
         }
 
         String inputFilename = clParser.getValue("input");
