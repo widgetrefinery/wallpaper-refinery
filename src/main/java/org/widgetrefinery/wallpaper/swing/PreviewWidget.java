@@ -18,27 +18,37 @@
 package org.widgetrefinery.wallpaper.swing;
 
 import javax.imageio.ImageIO;
-import javax.swing.JLabel;
+import javax.swing.Icon;
+import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Since: 3/14/12 9:03 PM
  */
-public class PreviewWidget extends JLabel {
-    public PreviewWidget(final File file) {
-        setText(file.getName());
+public class PreviewWidget implements Icon {
+    private final File          file;
+    private final BufferedImage image;
+
+    public PreviewWidget(final File file) throws IOException {
+        this.file = file;
+        this.image = ImageIO.read(file);
     }
 
-    public static PreviewWidget create(final File file) {
-        try {
-            BufferedImage image = ImageIO.read(file);
-            if (null != image) {
-                return new PreviewWidget(file);
-            }
-        } catch (Exception e) {
-            //not an image
-        }
-        return null;
+    @Override
+    public void paintIcon(final Component c, final Graphics g, final int x, final int y) {
+        g.drawImage(this.image, x, y, 200, 200, null);
+    }
+
+    @Override
+    public int getIconWidth() {
+        return 200;
+    }
+
+    @Override
+    public int getIconHeight() {
+        return 200;
     }
 }

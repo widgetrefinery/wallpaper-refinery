@@ -26,6 +26,7 @@ import org.widgetrefinery.wallpaper.swing.event.OpenFileEvent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.BorderLayout;
 import java.awt.HeadlessException;
 import java.io.File;
@@ -41,12 +42,13 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         EventBus eventBus = new EventBus();
+        eventBus.add(new DebugEventListener());
+
         File currentDirectory = new File(System.getProperty("user.dir"));
         JFileChooser fileChooser = new JFileChooser(currentDirectory);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Image", "bmp", "gif", "jpg", "jpeg", "png");
+        fileChooser.setFileFilter(filter);
         registerBrowseEventListener(eventBus, fileChooser);
-        if (null != System.getProperty("debug")) {
-            eventBus.add(new DebugEventListener());
-        }
 
         PreviewPanel previewPanel = new PreviewPanel(eventBus);
         ControlPanel controlPanel = new ControlPanel(eventBus);

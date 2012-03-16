@@ -21,20 +21,29 @@ import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.wallpaper.swing.event.OpenFileEvent;
 
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Since: 3/14/12 9:02 PM
  */
 public class PreviewPanel extends JScrollPane {
-    private final JPanel content;
+    private static final Logger logger = Logger.getLogger(PreviewPanel.class.getName());
+
+    private final DefaultListModel<Icon> list;
 
     public PreviewPanel(final EventBus eventBus) {
-        this.content = new JPanel();
-        this.content.setLayout(new BoxLayout(this.content, BoxLayout.Y_AXIS));
+        this.list = new DefaultListModel<Icon>();
+
+        JList<Icon> content = new JList<Icon>(this.list);
+        content.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        content.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        content.setVisibleRowCount(-1);
+        setViewportView(content);
 
         registerOpenFileEventListener(eventBus);
     }
@@ -48,18 +57,35 @@ public class PreviewPanel extends JScrollPane {
         });
     }
 
-    public void setPath(final File parent) {
-        this.content.removeAll();
-        File[] children = parent.listFiles();
-        if (null != children) {
+    public void setPath(final File file) {
+        this.list.clear();
+        File parent = file.isDirectory() ? file : file.getParentFile();
+        File[] children = parent.listFiles(new ImageFileFilter());
+        if (null != children && 0 < children.length) {
+            this.list.ensureCapacity(children.length);
             for (File child : children) {
-                if (child.isFile()) {
-                    PreviewWidget previewWidget = PreviewWidget.create(child);
-                    if (null != previewWidget) {
-                        this.content.add(previewWidget);
-                    }
+                try {
+                    this.list.addElement(new PreviewWidget(child));
+                } catch (IOException e) {
+                    logger.fine(e.getMessage());
                 }
             }
+        }
+    }
+
+    protected static class ImageFileFilter implements FileFilter {
+        @Override
+        public boolean accept(final File file) {
+            boolean result = false;
+            if (file.isFile() && file.canRead()) {
+                String name = file.getName();
+                int ndx = name.lastIndexOf('.');
+                if (-1 < ndx) {
+                    String extension = name.substring(ndx + 1).toLowerCase();
+                    result = ImageIO.getImageReadersBySuffix(extension).hasNext();
+                }
+            }
+            return result;
         }
     }
 }
