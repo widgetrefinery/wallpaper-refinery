@@ -49,7 +49,7 @@ public class PreviewPanel extends JScrollPane {
     }
 
     protected void registerOpenFileEventListener(final EventBus eventBus) {
-        eventBus.add(new EventListener<OpenFileEvent>() {
+        eventBus.add(OpenFileEvent.class, new EventListener<OpenFileEvent>() {
             @Override
             public void notify(final OpenFileEvent event) {
                 setPath(event.getFile());
