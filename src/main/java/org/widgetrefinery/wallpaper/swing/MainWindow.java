@@ -17,8 +17,6 @@
 
 package org.widgetrefinery.wallpaper.swing;
 
-import org.widgetrefinery.util.event.DebugEventListener;
-import org.widgetrefinery.util.event.Event;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.wallpaper.swing.event.BrowseForFileEvent;
@@ -43,7 +41,6 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         EventBus eventBus = new EventBus();
-        eventBus.add(Event.class, new DebugEventListener());
 
         File currentDirectory = new File(System.getProperty("user.dir"));
         JFileChooser fileChooser = new JFileChooser(currentDirectory);
