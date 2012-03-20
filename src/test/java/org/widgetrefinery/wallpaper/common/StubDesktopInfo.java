@@ -27,6 +27,13 @@ import java.util.List;
 public class StubDesktopInfo extends DesktopInfo {
     private static final boolean overrideComputeViewports = true;
 
+    public StubDesktopInfo() {
+    }
+
+    public StubDesktopInfo(final int maxWidth, final int maxHeight) {
+        super(maxWidth, maxHeight);
+    }
+
     @Override
     protected List<Rectangle> computeViewports() {
         if (overrideComputeViewports) {

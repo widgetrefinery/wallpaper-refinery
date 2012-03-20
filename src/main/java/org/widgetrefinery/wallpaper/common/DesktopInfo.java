@@ -41,6 +41,23 @@ public class DesktopInfo {
         this.bounds = bounds;
     }
 
+    public DesktopInfo(final int maxWidth, final int maxHeight) {
+        this();
+        Rectangle bounds = getBounds();
+        int width = bounds.width;
+        int height = bounds.height;
+        double scale;
+        if (((double) width) / height >= ((double) maxWidth) / maxHeight) {
+            scale = ((double) maxWidth) / width;
+        } else {
+            scale = ((double) maxHeight) / height;
+        }
+        scale(bounds, scale);
+        for (Rectangle viewport : getViewports()) {
+            scale(viewport, scale);
+        }
+    }
+
     protected List<Rectangle> computeViewports() {
         List<Rectangle> viewports = new ArrayList<Rectangle>();
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -50,6 +67,13 @@ public class DesktopInfo {
             }
         }
         return Collections.unmodifiableList(viewports);
+    }
+
+    protected void scale(final Rectangle rect, final double scale) {
+        rect.x = (int) (rect.x * scale);
+        rect.y = (int) (rect.y * scale);
+        rect.width = (int) (rect.width * scale);
+        rect.height = (int) (rect.height * scale);
     }
 
     public List<Rectangle> getViewports() {

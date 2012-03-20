@@ -17,7 +17,8 @@
 
 package org.widgetrefinery.wallpaper.swing;
 
-import javax.imageio.ImageIO;
+import org.widgetrefinery.wallpaper.common.ImageUtil;
+
 import javax.swing.Icon;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -32,23 +33,23 @@ public class PreviewWidget implements Icon {
     private final File          file;
     private final BufferedImage image;
 
-    public PreviewWidget(final File file) throws IOException {
+    public PreviewWidget(final ImageUtil imageUtil, final File file) throws IOException {
         this.file = file;
-        this.image = ImageIO.read(file);
+        this.image = imageUtil.previewImage(file);
     }
 
     @Override
     public void paintIcon(final Component c, final Graphics g, final int x, final int y) {
-        g.drawImage(this.image, x, y, 200, 200, null);
+        g.drawImage(this.image, x, y, this.image.getWidth(), this.image.getHeight(), null);
     }
 
     @Override
     public int getIconWidth() {
-        return 200;
+        return this.image.getWidth();
     }
 
     @Override
     public int getIconHeight() {
-        return 200;
+        return this.image.getHeight();
     }
 }

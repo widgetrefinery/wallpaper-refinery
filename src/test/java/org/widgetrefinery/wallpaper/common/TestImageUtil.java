@@ -42,14 +42,9 @@ public class TestImageUtil extends TestCase {
                 {r, r, r, r, r, r, r, r, r, r, w, w, w, w, w, w, w, w, w, w}, //row 8
                 {r, r, r, r, r, r, r, r, r, r, w, w, w, w, w, w, w, w, w, w}, //row 9
                 {r, r, r, r, r, r, r, r, r, r, w, w, w, w, w, w, w, w, w, w}, //row 10
-                {r, r, r, r, r, r, r, r, r, r, w, w, w, w, w, w, w, w, w, w} //row 11
+                {r, r, r, r, r, r, r, r, r, r, w, w, w, w, w, w, w, w, w, w}  //row 11
         };
-        BufferedImage input = new BufferedImage(20, 12, BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < input.getHeight(); y++) {
-            for (int x = 0; x < input.getWidth(); x++) {
-                input.setRGB(x, y, inputRGB[y][x]);
-            }
-        }
+        BufferedImage input = createImage(inputRGB);
 
         ImageUtil util = new ImageUtil(new StubDesktopInfo());
         BufferedImage output = util.formatImage(input);
@@ -58,16 +53,67 @@ public class TestImageUtil extends TestCase {
 
         //output is half as big and translated
         int[][] outputRGB = new int[][]{
-                {b, g, g, g, g, g, b, b, b, b, b}, //row 1
-                {b, g, g, g, g, g, b, b, b, b, b}, //row 2
-                {r, w, w, w, w, w, r, r, r, r, r}, //row 3
-                {r, w, w, w, w, w, r, r, r, r, r}, //row 4
-                {r, w, w, w, w, w, r, r, r, r, r}, //row 5
-                {b, g, g, g, g, g, b, b, b, b, b} //row 0
+                {b, g, g, g, g, g, b, b, b, b}, //row 1
+                {b, g, g, g, g, g, b, b, b, b}, //row 2
+                {r, w, w, w, w, w, r, r, r, r}, //row 3
+                {r, w, w, w, w, w, r, r, r, r}, //row 4
+                {r, w, w, w, w, w, r, r, r, r}, //row 5
+                {b, g, g, g, g, g, b, b, b, b}  //row 0
         };
-        for (int y = 0; y < output.getHeight(); y++) {
-            for (int x = 0; x < output.getWidth(); x++) {
-                assertEquals(dumpImage(output) + x + ", " + y, outputRGB[y][x], 0xFFFFFF & output.getRGB(x, y));
+        checkImage(outputRGB, output);
+    }
+
+    public void testPreviewImage() throws Exception {
+        final int fR = 0xFF0000; //Full Red
+        final int fG = 0x00FF00; //Full Green
+        int[][] inputRGB = new int[][]{
+                {fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR}, //row 0
+                {fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR}, //row 1
+                {fR, fR, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fR, fR}, //row 2
+                {fR, fR, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fR, fR}, //row 3
+                {fR, fR, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fR, fR}, //row 4
+                {fR, fR, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fR, fR}, //row 5
+                {fR, fR, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fR, fR}, //row 6
+                {fR, fR, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fR, fR}, //row 7
+                {fR, fR, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fR, fR}, //row 8
+                {fR, fR, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fG, fR, fR}, //row 9
+                {fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR}, //row 10
+                {fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR, fR}  //row 11
+        };
+        BufferedImage input = createImage(inputRGB);
+
+        ImageUtil util = new ImageUtil(new StubDesktopInfo());
+        BufferedImage output = util.previewImage(input);
+        assertEquals(10, output.getWidth());
+        assertEquals(6, output.getHeight());
+
+        final int hR = 0x7F0000; //Half Red
+        final int aR = 0xFE0100; //Almost full Red
+        int[][] outputRGB = new int[][]{
+                {aR, fR, fR, fR, hR, hR, hR, hR, hR, hR}, //row 0
+                {fR, fG, fG, fG, fG, fG, fG, fG, fG, fR}, //row 1
+                {fR, fG, fG, fG, fG, fG, fG, fG, fG, fR}, //row 2
+                {fR, fG, fG, fG, fG, fG, fG, fG, fG, fR}, //row 3
+                {fR, fG, fG, fG, fG, fG, fG, fG, fG, fR}, //row 4
+                {aR, fR, fR, fR, hR, hR, hR, hR, hR, hR}  //row 5
+        };
+        checkImage(outputRGB, output);
+    }
+
+    protected BufferedImage createImage(final int[][] inputRGB) {
+        BufferedImage img = new BufferedImage(inputRGB[0].length, inputRGB.length, BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < img.getHeight(); y++) {
+            for (int x = 0; x < img.getWidth(); x++) {
+                img.setRGB(x, y, inputRGB[y][x]);
+            }
+        }
+        return img;
+    }
+
+    protected void checkImage(final int[][] outputRGB, final BufferedImage img) {
+        for (int y = 0; y < img.getHeight(); y++) {
+            for (int x = 0; x < img.getWidth(); x++) {
+                assertEquals("\n" + dumpImage(img) + x + ", " + y, outputRGB[y][x], 0xFFFFFF & img.getRGB(x, y));
             }
         }
     }
@@ -76,11 +122,11 @@ public class TestImageUtil extends TestCase {
         StringBuilder sb = new StringBuilder();
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
-                String hex = Integer.toHexString(image.getRGB(x, y));
+                String hex = Integer.toHexString(0xFFFFFF & image.getRGB(x, y));
                 if (2 == hex.length()) {
-                    sb.append("     ");
+                    sb.append(" 0000");
                 } else if (4 == hex.length()) {
-                    sb.append("   ");
+                    sb.append(" 00");
                 } else {
                     sb.append(" ");
                 }

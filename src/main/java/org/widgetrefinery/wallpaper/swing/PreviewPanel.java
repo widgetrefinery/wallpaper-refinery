@@ -19,6 +19,8 @@ package org.widgetrefinery.wallpaper.swing;
 
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
+import org.widgetrefinery.wallpaper.common.DesktopInfo;
+import org.widgetrefinery.wallpaper.common.ImageUtil;
 import org.widgetrefinery.wallpaper.swing.event.OpenFileEvent;
 
 import javax.imageio.ImageIO;
@@ -34,16 +36,17 @@ import java.util.logging.Logger;
 public class PreviewPanel extends JScrollPane {
     private static final Logger logger = Logger.getLogger(PreviewPanel.class.getName());
 
-    private final DefaultListModel<Icon> list;
+    private final DefaultListModel<Icon> listModel;
+    private final JList<Icon>            listWidget;
 
     public PreviewPanel(final EventBus eventBus) {
-        this.list = new DefaultListModel<Icon>();
+        this.listModel = new DefaultListModel<Icon>();
 
-        JList<Icon> content = new JList<Icon>(this.list);
-        content.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        content.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-        content.setVisibleRowCount(-1);
-        setViewportView(content);
+        this.listWidget = new JList<Icon>(this.listModel);
+        this.listWidget.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.listWidget.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        this.listWidget.setVisibleRowCount(-1);
+        setViewportView(this.listWidget);
 
         registerOpenFileEventListener(eventBus);
     }
@@ -58,18 +61,30 @@ public class PreviewPanel extends JScrollPane {
     }
 
     public void setPath(final File file) {
-        this.list.clear();
+        this.listModel.clear();
         File parent = file.isDirectory() ? file : file.getParentFile();
         File[] children = parent.listFiles(new ImageFileFilter());
+        ImageUtil imageUtil = new ImageUtil(new DesktopInfo(200, 200));
+        Integer selectedNdx = null;
+
         if (null != children && 0 < children.length) {
-            this.list.ensureCapacity(children.length);
+            this.listModel.ensureCapacity(children.length);
             for (File child : children) {
                 try {
-                    this.list.addElement(new PreviewWidget(child));
+                    PreviewWidget previewWidget = new PreviewWidget(imageUtil, child);
+                    this.listModel.addElement(previewWidget);
+                    if (child.equals(file)) {
+                        selectedNdx = this.listModel.size();
+                    }
                 } catch (IOException e) {
                     logger.fine(e.getMessage());
                 }
             }
+        }
+
+        if (null != selectedNdx) {
+            this.listWidget.setSelectedIndex(selectedNdx);
+            this.listWidget.ensureIndexIsVisible(selectedNdx);
         }
     }
 

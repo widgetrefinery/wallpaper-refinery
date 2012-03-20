@@ -18,6 +18,7 @@
 package org.widgetrefinery.wallpaper.common;
 
 import javax.imageio.ImageIO;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -25,12 +26,14 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Since: 2/20/12 5:24 PM
  */
 public class ImageUtil {
-    private final DesktopInfo info;
+    private final DesktopInfo   info;
+    private       BufferedImage mask;
 
     public ImageUtil() {
         this(new DesktopInfo());
@@ -44,6 +47,27 @@ public class ImageUtil {
         return this.info.getBounds();
     }
 
+    protected List<Rectangle> getViewports() {
+        return this.info.getViewports();
+    }
+
+    protected BufferedImage getMask() {
+        if (null == this.mask) {
+            Rectangle bounds = getBounds();
+            BufferedImage mask = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_4BYTE_ABGR);
+            Graphics2D g2d = mask.createGraphics();
+            g2d.setBackground(new Color(0, 0, 0, 0)); //transparent black
+            g2d.setColor(new Color(0, 0, 0, 128)); //semi-transparent black
+            g2d.fillRect(0, 0, bounds.width, bounds.height);
+            for (Rectangle viewport : getViewports()) {
+                g2d.clearRect(viewport.x - bounds.x, viewport.y - bounds.y, viewport.width, viewport.height);
+            }
+            g2d.dispose();
+            this.mask = mask;
+        }
+        return this.mask;
+    }
+
     public BufferedImage formatImage(final File file) throws IOException {
         BufferedImage img = ImageIO.read(file);
         return formatImage(img);
@@ -54,10 +78,20 @@ public class ImageUtil {
         return translate(resized);
     }
 
+    public BufferedImage previewImage(final File file) throws IOException {
+        BufferedImage img = ImageIO.read(file);
+        return previewImage(img);
+    }
+
+    public BufferedImage previewImage(final BufferedImage img) {
+        BufferedImage resized = resize(img);
+        return mask(resized);
+    }
+
     protected BufferedImage resize(final BufferedImage img) {
         BufferedImage result = img;
         Rectangle bounds = getBounds();
-        if (img.getWidth() != bounds.x || img.getHeight() != bounds.y) {
+        if (img.getWidth() != bounds.width || img.getHeight() != bounds.height) {
             result = new BufferedImage(bounds.width, bounds.height, img.getType());
             Graphics2D g2d = result.createGraphics();
             g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
@@ -86,6 +120,13 @@ public class ImageUtil {
             g2d.dispose();
         }
         return result;
+    }
+
+    protected BufferedImage mask(final BufferedImage img) {
+        Graphics2D g2d = img.createGraphics();
+        g2d.drawImage(getMask(), 0, 0, img.getWidth(), img.getHeight(), null);
+        g2d.dispose();
+        return img;
     }
 
     public void saveImage(final RenderedImage img, final File file, final boolean overrideExisting) throws IllegalArgumentException, IOException {
