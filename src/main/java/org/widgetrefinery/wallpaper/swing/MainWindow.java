@@ -19,13 +19,11 @@ package org.widgetrefinery.wallpaper.swing;
 
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
-import org.widgetrefinery.wallpaper.swing.event.BrowseForFileEvent;
-import org.widgetrefinery.wallpaper.swing.event.OpenFileEvent;
+import org.widgetrefinery.wallpaper.swing.event.SetOutputFileEvent;
+import org.widgetrefinery.wallpaper.swing.event.SetWorkingDirectoryEvent;
 
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.BorderLayout;
 import java.awt.HeadlessException;
 import java.io.File;
@@ -35,38 +33,39 @@ import java.io.File;
  */
 public class MainWindow extends JFrame {
     public MainWindow() throws HeadlessException {
-        setTitle("Wallpaper Refinery");
+        EventBus eventBus = new EventBus();
+        Model model = new Model();
+
+        eventBus.add(SetWorkingDirectoryEvent.class, new EventListener<SetWorkingDirectoryEvent>() {
+            @Override
+            public void notify(final SetWorkingDirectoryEvent event) {
+                setTitle(event.getFile());
+            }
+        });
+        eventBus.add(SetOutputFileEvent.class, new EventListener<SetOutputFileEvent>() {
+            @Override
+            public void notify(final SetOutputFileEvent event) {
+                //todo
+            }
+        });
+
+        setTitle(model.getWorkingDirectory());
         setSize(640, 480);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        EventBus eventBus = new EventBus();
-
-        File currentDirectory = new File(System.getProperty("user.dir"));
-        JFileChooser fileChooser = new JFileChooser(currentDirectory);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Image", "bmp", "gif", "jpg", "jpeg", "png");
-        fileChooser.setFileFilter(filter);
-        registerBrowseEventListener(eventBus, fileChooser);
-
-        PreviewPanel previewPanel = new PreviewPanel(eventBus);
-        ControlPanel controlPanel = new ControlPanel(eventBus);
+        PreviewPanel previewPanel = new PreviewPanel(eventBus, model);
+        ControlPanel controlPanel = new ControlPanel(eventBus, model);
         JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.add(previewPanel, BorderLayout.CENTER);
         contentPane.add(controlPanel, BorderLayout.WEST);
         add(contentPane);
     }
 
-    protected void registerBrowseEventListener(final EventBus eventBus, final JFileChooser fileChooser) {
-        eventBus.add(BrowseForFileEvent.class, new EventListener<BrowseForFileEvent>() {
-            @Override
-            public void notify(final BrowseForFileEvent event) {
-                fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-                int result = fileChooser.showOpenDialog(MainWindow.this);
-                if (JFileChooser.APPROVE_OPTION == result) {
-                    File file = fileChooser.getSelectedFile();
-                    eventBus.fireEvent(new OpenFileEvent(file));
-                }
-            }
-        });
+    protected void setTitle(File workingDirectory) {
+        if (null != workingDirectory && workingDirectory.isFile()) {
+            workingDirectory = workingDirectory.getParentFile();
+        }
+        setTitle("Wallpaper Refinery - " + workingDirectory);
     }
 }

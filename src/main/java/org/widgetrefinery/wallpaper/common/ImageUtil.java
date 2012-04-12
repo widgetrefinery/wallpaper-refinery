@@ -43,7 +43,7 @@ public class ImageUtil {
         this.info = info;
     }
 
-    protected Rectangle getBounds() {
+    public Rectangle getBounds() {
         return this.info.getBounds();
     }
 

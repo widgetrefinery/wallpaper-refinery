@@ -18,31 +18,43 @@
 package org.widgetrefinery.wallpaper.swing;
 
 import org.widgetrefinery.util.event.EventBus;
-import org.widgetrefinery.wallpaper.swing.event.BrowseForFileEvent;
-import org.widgetrefinery.wallpaper.swing.event.SetConfigureOSEvent;
-import org.widgetrefinery.wallpaper.swing.event.SetRefreshOSEvent;
+import org.widgetrefinery.util.event.EventListener;
+import org.widgetrefinery.wallpaper.os.OSSupport;
+import org.widgetrefinery.wallpaper.os.OSUtil;
+import org.widgetrefinery.wallpaper.swing.event.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 /**
  * Since: 3/12/12 10:58 PM
  */
 public class ControlPanel extends JPanel {
-    public ControlPanel(final EventBus eventBus) {
+    public ControlPanel(final EventBus eventBus, final Model model) {
+        JFileChooser fileChooser = new JFileChooser(model.getWorkingDirectory());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(createOpenPanel(eventBus));
-        add(createSavePanel(eventBus));
+        add(createOpenPanel(eventBus, model, fileChooser));
+        add(createSavePanel(eventBus, model, fileChooser));
     }
 
-    protected JPanel createOpenPanel(final EventBus eventBus) {
+    protected JPanel createOpenPanel(final EventBus eventBus, final Model model, final JFileChooser fileChooser) {
         JButton browse = new JButton("Browse...");
         browse.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
-                eventBus.fireEvent(new BrowseForFileEvent());
+                fileChooser.resetChoosableFileFilters();
+                fileChooser.setFileFilter(new FileNameExtensionFilter("Image", "bmp", "gif", "jpg", "jpeg", "png"));
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                int result = fileChooser.showOpenDialog(ControlPanel.this);
+                if (JFileChooser.APPROVE_OPTION == result) {
+                    File file = fileChooser.getSelectedFile();
+                    model.setWorkingDirectory(file);
+                    eventBus.fireEvent(new SetWorkingDirectoryEvent(file));
+                }
             }
         });
 
@@ -51,26 +63,70 @@ public class ControlPanel extends JPanel {
         return panel;
     }
 
-    protected JPanel createSavePanel(final EventBus eventBus) {
+    protected JPanel createSavePanel(final EventBus eventBus, final Model model, final JFileChooser fileChooser) {
+        OSSupport osSupport = OSUtil.getOSSupport();
+
         final JCheckBox configureOS = new JCheckBox("Configure OS");
+        configureOS.setEnabled(null != osSupport);
+        configureOS.setSelected(model.isConfigOS());
         configureOS.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
-                eventBus.fireEvent(new SetConfigureOSEvent(configureOS.isSelected()));
+                boolean selected = configureOS.isSelected();
+                model.setConfigOS(selected);
+                eventBus.fireEvent(new SetConfigureOSEvent(selected));
             }
         });
 
         final JCheckBox refreshOS = new JCheckBox("Refresh OS");
+        refreshOS.setEnabled(null != osSupport);
+        refreshOS.setSelected(model.isRefreshOS());
         refreshOS.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
-                eventBus.fireEvent(new SetRefreshOSEvent(refreshOS.isSelected()));
+                boolean selected = refreshOS.isSelected();
+                model.setRefreshOS(selected);
+                eventBus.fireEvent(new SetRefreshOSEvent(selected));
+            }
+        });
+
+        final JButton save = new JButton("Save...");
+        save.setEnabled(null != model.getInputFile());
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
+                fileChooser.resetChoosableFileFilters();
+                fileChooser.setFileFilter(new FileNameExtensionFilter("Bitmap", "bmp"));
+                fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("GIF", "gif"));
+                fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Jpeg", "jpg", "jpeg"));
+                fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG", "png"));
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                int result = fileChooser.showSaveDialog(ControlPanel.this);
+                if (JFileChooser.APPROVE_OPTION == result) {
+                    File file = fileChooser.getSelectedFile();
+                    model.setOutputFile(file);
+                    eventBus.fireEvent(new SetOutputFileEvent(file));
+                }
+            }
+        });
+
+        eventBus.add(SetWorkingDirectoryEvent.class, new EventListener<SetWorkingDirectoryEvent>() {
+            @Override
+            public void notify(final SetWorkingDirectoryEvent event) {
+                save.setEnabled(null != model.getInputFile());
+            }
+        });
+        eventBus.add(SetInputFileEvent.class, new EventListener<SetInputFileEvent>() {
+            @Override
+            public void notify(final SetInputFileEvent event) {
+                save.setEnabled(null != event.getInputFile());
             }
         });
 
         JPanel panel = createPanel("Save");
         panel.add(configureOS);
         panel.add(refreshOS);
+        panel.add(save);
         return panel;
     }
 

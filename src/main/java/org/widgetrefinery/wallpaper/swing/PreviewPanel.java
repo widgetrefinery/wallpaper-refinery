@@ -21,63 +21,76 @@ import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.wallpaper.common.DesktopInfo;
 import org.widgetrefinery.wallpaper.common.ImageUtil;
-import org.widgetrefinery.wallpaper.swing.event.OpenFileEvent;
+import org.widgetrefinery.wallpaper.swing.event.SetInputFileEvent;
+import org.widgetrefinery.wallpaper.swing.event.SetWorkingDirectoryEvent;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Since: 3/14/12 9:02 PM
  */
 public class PreviewPanel extends JScrollPane {
-    private static final Logger logger = Logger.getLogger(PreviewPanel.class.getName());
+    private final Model                  model;
+    private       boolean                enableListener;
+    private final DefaultListModel<File> listModel;
+    private final JList<File>            listWidget;
 
-    private final DefaultListModel<Icon> listModel;
-    private final JList<Icon>            listWidget;
+    public PreviewPanel(final EventBus eventBus, final Model model) {
+        this.model = model;
+        this.enableListener = true;
 
-    public PreviewPanel(final EventBus eventBus) {
-        this.listModel = new DefaultListModel<Icon>();
-
-        this.listWidget = new JList<Icon>(this.listModel);
+        this.listModel = new DefaultListModel<File>();
+        this.listWidget = new JList<File>(this.listModel);
         this.listWidget.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.listWidget.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         this.listWidget.setVisibleRowCount(-1);
-        setViewportView(this.listWidget);
-
-        registerOpenFileEventListener(eventBus);
-    }
-
-    protected void registerOpenFileEventListener(final EventBus eventBus) {
-        eventBus.add(OpenFileEvent.class, new EventListener<OpenFileEvent>() {
+        int previewSize = model.getPreviewSize();
+        this.listWidget.setCellRenderer(new PreviewRenderer(new ImageUtil(new DesktopInfo(previewSize, previewSize))));
+        this.listWidget.addListSelectionListener(new ListSelectionListener() {
             @Override
-            public void notify(final OpenFileEvent event) {
-                setPath(event.getFile());
+            public void valueChanged(final ListSelectionEvent listSelectionEvent) {
+                if (PreviewPanel.this.enableListener) {
+                    File file = PreviewPanel.this.listWidget.getSelectedValue();
+                    model.setInputFile(file);
+                    eventBus.fireEvent(new SetInputFileEvent(file));
+                }
+            }
+        });
+
+        setViewportView(this.listWidget);
+        refresh();
+
+        eventBus.add(SetWorkingDirectoryEvent.class, new EventListener<SetWorkingDirectoryEvent>() {
+            @Override
+            public void notify(final SetWorkingDirectoryEvent event) {
+                refresh();
             }
         });
     }
 
-    public void setPath(final File file) {
+    public void refresh() {
+        this.enableListener = false;
         this.listModel.clear();
-        File parent = file.isDirectory() ? file : file.getParentFile();
-        File[] children = parent.listFiles(new ImageFileFilter());
-        ImageUtil imageUtil = new ImageUtil(new DesktopInfo(200, 200));
+        this.enableListener = true;
+        File workingDirectory = this.model.getWorkingDirectory();
+        File[] children = workingDirectory.listFiles(new ImageFileFilter());
         Integer selectedNdx = null;
 
         if (null != children && 0 < children.length) {
             this.listModel.ensureCapacity(children.length);
+            File inputFile = this.model.getInputFile();
             for (File child : children) {
-                try {
-                    PreviewWidget previewWidget = new PreviewWidget(imageUtil, child);
-                    this.listModel.addElement(previewWidget);
-                    if (child.equals(file)) {
-                        selectedNdx = this.listModel.size();
-                    }
-                } catch (IOException e) {
-                    logger.fine(e.getMessage());
+                this.listModel.addElement(child);
+                if (child.equals(inputFile)) {
+                    selectedNdx = this.listModel.size() - 1;
                 }
             }
         }

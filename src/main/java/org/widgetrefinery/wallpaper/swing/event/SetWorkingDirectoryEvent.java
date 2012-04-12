@@ -24,10 +24,10 @@ import java.io.File;
 /**
  * Since: 3/14/12 10:14 PM
  */
-public class OpenFileEvent implements Event {
+public class SetWorkingDirectoryEvent implements Event {
     private final File file;
 
-    public OpenFileEvent(final File file) {
+    public SetWorkingDirectoryEvent(final File file) {
         this.file = file;
     }
 
