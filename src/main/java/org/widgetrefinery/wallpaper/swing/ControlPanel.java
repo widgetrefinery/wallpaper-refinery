@@ -21,13 +21,17 @@ import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.wallpaper.os.OSSupport;
 import org.widgetrefinery.wallpaper.os.OSUtil;
-import org.widgetrefinery.wallpaper.swing.event.*;
+import org.widgetrefinery.wallpaper.swing.event.SetInputFileEvent;
+import org.widgetrefinery.wallpaper.swing.event.SetOutputFileEvent;
+import org.widgetrefinery.wallpaper.swing.event.SetWorkingDirectoryEvent;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 
 /**
@@ -66,27 +70,23 @@ public class ControlPanel extends JPanel {
     protected JPanel createSavePanel(final EventBus eventBus, final Model model, final JFileChooser fileChooser) {
         OSSupport osSupport = OSUtil.getOSSupport();
 
-        final JCheckBox configureOS = new JCheckBox("Configure OS");
+        JCheckBox configureOS = new JCheckBox("Configure OS");
         configureOS.setEnabled(null != osSupport);
         configureOS.setSelected(model.isConfigOS());
-        configureOS.addActionListener(new ActionListener() {
+        configureOS.addItemListener(new ItemListener() {
             @Override
-            public void actionPerformed(final ActionEvent actionEvent) {
-                boolean selected = configureOS.isSelected();
-                model.setConfigOS(selected);
-                eventBus.fireEvent(new SetConfigureOSEvent(selected));
+            public void itemStateChanged(final ItemEvent itemEvent) {
+                model.setConfigOS(itemEvent.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
-        final JCheckBox refreshOS = new JCheckBox("Refresh OS");
+        JCheckBox refreshOS = new JCheckBox("Refresh OS");
         refreshOS.setEnabled(null != osSupport);
         refreshOS.setSelected(model.isRefreshOS());
-        refreshOS.addActionListener(new ActionListener() {
+        refreshOS.addItemListener(new ItemListener() {
             @Override
-            public void actionPerformed(final ActionEvent actionEvent) {
-                boolean selected = refreshOS.isSelected();
-                model.setRefreshOS(selected);
-                eventBus.fireEvent(new SetRefreshOSEvent(selected));
+            public void itemStateChanged(final ItemEvent itemEvent) {
+                model.setRefreshOS(itemEvent.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -119,7 +119,7 @@ public class ControlPanel extends JPanel {
         eventBus.add(SetInputFileEvent.class, new EventListener<SetInputFileEvent>() {
             @Override
             public void notify(final SetInputFileEvent event) {
-                save.setEnabled(null != event.getInputFile());
+                save.setEnabled(null != event.getValue());
             }
         });
 

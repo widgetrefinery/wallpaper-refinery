@@ -56,8 +56,8 @@ public class PreviewPanel extends JScrollPane {
         this.listWidget.setCellRenderer(new PreviewRenderer(new ImageUtil(new DesktopInfo(previewSize, previewSize))));
         this.listWidget.addListSelectionListener(new ListSelectionListener() {
             @Override
-            public void valueChanged(final ListSelectionEvent listSelectionEvent) {
-                if (PreviewPanel.this.enableListener) {
+            public void valueChanged(final ListSelectionEvent event) {
+                if (!event.getValueIsAdjusting() && PreviewPanel.this.enableListener) {
                     File file = PreviewPanel.this.listWidget.getSelectedValue();
                     model.setInputFile(file);
                     eventBus.fireEvent(new SetInputFileEvent(file));
@@ -78,26 +78,29 @@ public class PreviewPanel extends JScrollPane {
 
     public void refresh() {
         this.enableListener = false;
-        this.listModel.clear();
-        this.enableListener = true;
-        File workingDirectory = this.model.getWorkingDirectory();
-        File[] children = workingDirectory.listFiles(new ImageFileFilter());
-        Integer selectedNdx = null;
+        try {
+            this.listModel.clear();
+            File workingDirectory = this.model.getWorkingDirectory();
+            File[] children = workingDirectory.listFiles(new ImageFileFilter());
+            Integer selectedNdx = null;
 
-        if (null != children && 0 < children.length) {
-            this.listModel.ensureCapacity(children.length);
-            File inputFile = this.model.getInputFile();
-            for (File child : children) {
-                this.listModel.addElement(child);
-                if (child.equals(inputFile)) {
-                    selectedNdx = this.listModel.size() - 1;
+            if (null != children && 0 < children.length) {
+                this.listModel.ensureCapacity(children.length);
+                File inputFile = this.model.getInputFile();
+                for (File child : children) {
+                    this.listModel.addElement(child);
+                    if (child.equals(inputFile)) {
+                        selectedNdx = this.listModel.size() - 1;
+                    }
                 }
             }
-        }
 
-        if (null != selectedNdx) {
-            this.listWidget.setSelectedIndex(selectedNdx);
-            this.listWidget.ensureIndexIsVisible(selectedNdx);
+            if (null != selectedNdx) {
+                this.listWidget.setSelectedIndex(selectedNdx);
+                this.listWidget.ensureIndexIsVisible(selectedNdx);
+            }
+        } finally {
+            this.enableListener = true;
         }
     }
 

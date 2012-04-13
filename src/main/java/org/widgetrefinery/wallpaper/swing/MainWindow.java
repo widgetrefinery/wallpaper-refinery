@@ -39,7 +39,7 @@ public class MainWindow extends JFrame {
         eventBus.add(SetWorkingDirectoryEvent.class, new EventListener<SetWorkingDirectoryEvent>() {
             @Override
             public void notify(final SetWorkingDirectoryEvent event) {
-                setTitle(event.getFile());
+                setTitle(event.getValue());
             }
         });
         eventBus.add(SetOutputFileEvent.class, new EventListener<SetOutputFileEvent>() {

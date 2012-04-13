@@ -17,26 +17,15 @@
 
 package org.widgetrefinery.wallpaper.swing.event;
 
-import org.widgetrefinery.util.event.Event;
+import org.widgetrefinery.util.event.ValueEvent;
 
 import java.io.File;
 
 /**
  * Since: 4/11/12 10:08 PM
  */
-public class SetInputFileEvent implements Event {
-    private final File inputFile;
-
-    public SetInputFileEvent(final File inputFile) {
-        this.inputFile = inputFile;
-    }
-
-    public File getInputFile() {
-        return this.inputFile;
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getName() + ": " + getInputFile();
+public class SetInputFileEvent extends ValueEvent<File> {
+    public SetInputFileEvent(final File value) {
+        super(value);
     }
 }

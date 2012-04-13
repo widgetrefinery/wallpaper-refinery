@@ -17,26 +17,15 @@
 
 package org.widgetrefinery.wallpaper.swing.event;
 
-import org.widgetrefinery.util.event.Event;
+import org.widgetrefinery.util.event.ValueEvent;
 
 import java.io.File;
 
 /**
  * Since: 3/14/12 10:14 PM
  */
-public class SetWorkingDirectoryEvent implements Event {
-    private final File file;
-
-    public SetWorkingDirectoryEvent(final File file) {
-        this.file = file;
-    }
-
-    public File getFile() {
-        return this.file;
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getName() + ": " + getFile();
+public class SetWorkingDirectoryEvent extends ValueEvent<File> {
+    public SetWorkingDirectoryEvent(final File value) {
+        super(value);
     }
 }
