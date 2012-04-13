@@ -59,6 +59,7 @@ public class PreviewRenderer implements ListCellRenderer<File> {
         private final ImageUtil     imageUtil;
         private final File          file;
         private       BufferedImage image;
+        private       long          loadTimestamp;
         private       boolean       selected;
 
         public PreviewWidget(final ImageUtil imageUtil, final File file) {
@@ -69,7 +70,7 @@ public class PreviewRenderer implements ListCellRenderer<File> {
         }
 
         protected BufferedImage getImage() {
-            if (null == this.image) {
+            if (null == this.image || this.loadTimestamp < this.file.lastModified()) {
                 try {
                     this.image = this.imageUtil.previewImage(this.file);
                 } catch (Exception e) {
@@ -81,6 +82,7 @@ public class PreviewRenderer implements ListCellRenderer<File> {
                     g2d.drawLine(0, bounds.height, bounds.width, 0);
                     g2d.dispose();
                 }
+                this.loadTimestamp = System.currentTimeMillis();
             }
             return this.image;
         }

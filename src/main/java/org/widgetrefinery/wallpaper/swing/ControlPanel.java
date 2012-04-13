@@ -21,12 +21,14 @@ import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.wallpaper.os.OSSupport;
 import org.widgetrefinery.wallpaper.os.OSUtil;
+import org.widgetrefinery.wallpaper.swing.event.RetrySaveEvent;
 import org.widgetrefinery.wallpaper.swing.event.SetInputFileEvent;
 import org.widgetrefinery.wallpaper.swing.event.SetOutputFileEvent;
 import org.widgetrefinery.wallpaper.swing.event.SetWorkingDirectoryEvent;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -104,6 +106,16 @@ public class ControlPanel extends JPanel {
                 int result = fileChooser.showSaveDialog(ControlPanel.this);
                 if (JFileChooser.APPROVE_OPTION == result) {
                     File file = fileChooser.getSelectedFile();
+                    if (!file.getName().contains(".")) {
+                        FileFilter fileFilter = fileChooser.getFileFilter();
+                        if (null != fileFilter && fileFilter instanceof FileNameExtensionFilter) {
+                            FileNameExtensionFilter fnef = (FileNameExtensionFilter) fileFilter;
+                            String[] extensions = fnef.getExtensions();
+                            if (null != extensions && 0 < extensions.length) {
+                                file = new File(file.getParentFile(), file.getName() + "." + extensions[0]);
+                            }
+                        }
+                    }
                     model.setOutputFile(file);
                     eventBus.fireEvent(new SetOutputFileEvent(file));
                 }
@@ -120,6 +132,12 @@ public class ControlPanel extends JPanel {
             @Override
             public void notify(final SetInputFileEvent event) {
                 save.setEnabled(null != event.getValue());
+            }
+        });
+        eventBus.add(RetrySaveEvent.class, new EventListener<RetrySaveEvent>() {
+            @Override
+            public void notify(final RetrySaveEvent event) {
+                save.doClick();
             }
         });
 
