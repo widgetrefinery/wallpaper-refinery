@@ -17,6 +17,7 @@
 
 package org.widgetrefinery.wallpaper.swing;
 
+import org.widgetrefinery.util.StringUtil;
 import org.widgetrefinery.wallpaper.common.ImageUtil;
 
 import javax.swing.JList;
@@ -27,11 +28,15 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Since: 3/14/12 9:03 PM
  */
 public class PreviewRenderer implements ListCellRenderer<File> {
+    private static final Logger logger = Logger.getLogger(PreviewRenderer.class.getName());
+
     private final ImageUtil                imageUtil;
     private final Map<File, PreviewWidget> cache;
 
@@ -74,6 +79,9 @@ public class PreviewRenderer implements ListCellRenderer<File> {
                 try {
                     this.image = this.imageUtil.previewImage(this.file);
                 } catch (Exception e) {
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.fine(StringUtil.format("failed to load image " + this.file, e));
+                    }
                     Rectangle bounds = this.imageUtil.getBounds();
                     this.image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_3BYTE_BGR);
                     Graphics2D g2d = this.image.createGraphics();
