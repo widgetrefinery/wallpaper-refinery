@@ -12,7 +12,10 @@
     <build>
         <resources>
             <resource>
-                <directory>.</directory>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}</directory>
                 <includes>
                     <include>COPYING</include>
                 </includes>
@@ -53,10 +56,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>refinery-tools</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jmock</groupId>
-            <artifactId>jmock</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

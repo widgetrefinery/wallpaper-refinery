@@ -18,51 +18,27 @@
 package org.widgetrefinery.wallpaper;
 
 import org.widgetrefinery.util.StringUtil;
-import org.widgetrefinery.util.clParser.Argument;
-import org.widgetrefinery.util.clParser.BooleanArgumentType;
-import org.widgetrefinery.util.clParser.CLParser;
-import org.widgetrefinery.util.clParser.StringArgumentType;
+import org.widgetrefinery.util.clParser.*;
 import org.widgetrefinery.util.event.EventBus;
+import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
+import org.widgetrefinery.wallpaper.lang.WallpaperTranslatorKey;
 import org.widgetrefinery.wallpaper.swing.MainWindow;
 
 import javax.swing.SwingUtilities;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Since: 2/20/12 9:12 PM
  */
-public class Cli {
+public class Cli extends AbstractCli {
     public static void main(String[] args) {
-        boolean debugMode = null != System.getProperty("debug");
-
-        if (debugMode) {
-            Handler handler = new ConsoleHandler();
-            handler.setLevel(Level.FINEST);
-            Logger logger = Logger.getLogger("org.widgetrefinery");
-            logger.setLevel(Level.FINEST);
-            logger.addHandler(handler);
-        }
-
-        try {
-            Cli cli = new Cli();
-            cli.processCommandLine(args);
-        } catch (Exception e) {
-            if (debugMode) {
-                e.printStackTrace(System.err);
-            } else {
-                System.err.println(e.getMessage());
-            }
-            System.exit(-1);
-        }
+        new Cli().start(args);
     }
 
+    @Override
     protected void processCommandLine(final String[] args) throws IOException, InterruptedException {
         CLParser clParser = new CLParser(args,
                                          new Argument("c|configure",
@@ -95,7 +71,7 @@ public class Cli {
 
     protected void doTui(final CLParser clParser) throws IOException {
         if (Boolean.TRUE == clParser.getValue("help")) {
-            System.err.println(clParser.getHelpMessage(Cli.class, null, "Reformats an image for use as a multi-monitor wallpaper."));
+            System.err.println(clParser.getHelpMessage(Cli.class));
             System.exit(0);
         }
         if (Boolean.TRUE == clParser.getValue("license")) {
@@ -122,13 +98,13 @@ public class Cli {
         model.setRefreshOS(Boolean.TRUE == clParser.getValue("refresh"));
         Model.Error error = model.process(Boolean.TRUE == clParser.getValue("force"));
         if (Model.Error.NO_INPUT == error) {
-            System.err.println("Not enough data to proceed. Please check your options.");
+            System.err.println(Translator.get(WallpaperTranslatorKey.SAVE_ERROR_NO_INPUT));
         } else if (Model.Error.SAME_INPUT_OUTPUT == error) {
-            System.err.println("Input and output files cannot be the same.");
+            System.err.println(Translator.get(WallpaperTranslatorKey.SAVE_ERROR_SAME_INPUT_OUTPUT));
         } else if (Model.Error.OUTPUT_EXISTS == error) {
-            System.err.println("Output filename already exists (" + outputFilename + ").");
+            System.err.println(Translator.get(WallpaperTranslatorKey.SAVE_ERROR_OUTPUT_EXISTS, outputFilename));
         } else if (Model.Error.OTHER == error) {
-            System.err.println("Failed to process image. Please check your options.");
+            System.err.println(Translator.get(WallpaperTranslatorKey.SAVE_ERROR_OTHER));
         }
     }
 
