@@ -17,7 +17,6 @@
 
 package org.widgetrefinery.wallpaper.swing;
 
-import org.widgetrefinery.util.StringUtil;
 import org.widgetrefinery.wallpaper.common.ImageUtil;
 
 import javax.swing.JList;
@@ -79,9 +78,7 @@ public class PreviewRenderer implements ListCellRenderer<File> {
                 try {
                     this.image = this.imageUtil.previewImage(this.file);
                 } catch (Exception e) {
-                    if (logger.isLoggable(Level.FINE)) {
-                        logger.fine(StringUtil.format("failed to load image " + this.file, e));
-                    }
+                    logger.log(Level.FINE, "failed to load image " + this.file, e);
                     Rectangle bounds = this.imageUtil.getBounds();
                     this.image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_3BYTE_BGR);
                     Graphics2D g2d = this.image.createGraphics();

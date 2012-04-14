@@ -17,14 +17,14 @@
 
 package org.widgetrefinery.wallpaper.event;
 
-import org.widgetrefinery.util.event.ValueEvent;
+import org.widgetrefinery.util.event.EventWithPayload;
 
 import java.io.File;
 
 /**
  * Since: 3/14/12 10:14 PM
  */
-public class SetWorkingDirectoryEvent extends ValueEvent<File> {
+public class SetWorkingDirectoryEvent extends EventWithPayload<File> {
     public SetWorkingDirectoryEvent(final File value) {
         super(value);
     }

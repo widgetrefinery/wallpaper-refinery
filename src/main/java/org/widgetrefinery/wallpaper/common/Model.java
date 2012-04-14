@@ -17,7 +17,6 @@
 
 package org.widgetrefinery.wallpaper.common;
 
-import org.widgetrefinery.util.StringUtil;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.wallpaper.event.SetInputFileEvent;
 import org.widgetrefinery.wallpaper.event.SetWorkingDirectoryEvent;
@@ -135,9 +134,7 @@ public class Model {
                 }
             } catch (Exception e) {
                 error = Error.OTHER;
-                if (logger.isLoggable(Level.WARNING)) {
-                    logger.warning(StringUtil.format("failed to process image", e));
-                }
+                logger.log(Level.WARNING, "failed to process image", e);
             }
         }
         return error;
