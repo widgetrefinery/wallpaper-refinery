@@ -38,14 +38,13 @@ import java.io.FileFilter;
  * Since: 3/14/12 9:02 PM
  */
 public class PreviewPanel extends JScrollPane {
-    private final Model                  model;
-    private       boolean                enableListener;
-    private final DefaultListModel<File> listModel;
-    private final JList<File>            listWidget;
+    private final Model                        model;
+    private final DefaultListModel<File>       listModel;
+    private final JList<File>                  listWidget;
+    private final PreviewListSelectionListener listener;
 
     public PreviewPanel(final EventBus eventBus, final Model model) {
         this.model = model;
-        this.enableListener = true;
 
         this.listModel = new DefaultListModel<File>();
         this.listWidget = new JList<File>(this.listModel);
@@ -54,15 +53,8 @@ public class PreviewPanel extends JScrollPane {
         this.listWidget.setVisibleRowCount(-1);
         int previewSize = model.getPreviewSize();
         this.listWidget.setCellRenderer(new PreviewRenderer(new ImageUtil(new DesktopInfo(previewSize, previewSize))));
-        this.listWidget.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(final ListSelectionEvent event) {
-                if (!event.getValueIsAdjusting() && PreviewPanel.this.enableListener) {
-                    File file = PreviewPanel.this.listWidget.getSelectedValue();
-                    model.setInputFile(file);
-                }
-            }
-        });
+        this.listener = new PreviewListSelectionListener(model, this.listWidget);
+        this.listWidget.addListSelectionListener(this.listener);
 
         setViewportView(this.listWidget);
         refresh();
@@ -76,7 +68,7 @@ public class PreviewPanel extends JScrollPane {
     }
 
     public void refresh() {
-        this.enableListener = false;
+        this.listener.setEnable(false);
         try {
             this.listModel.clear();
             File workingDirectory = this.model.getWorkingDirectory();
@@ -99,7 +91,31 @@ public class PreviewPanel extends JScrollPane {
                 this.listWidget.ensureIndexIsVisible(selectedNdx);
             }
         } finally {
-            this.enableListener = true;
+            this.listener.setEnable(true);
+        }
+    }
+
+    protected static class PreviewListSelectionListener implements ListSelectionListener {
+        private final Model       model;
+        private final JList<File> listWidget;
+        private       boolean     enable;
+
+        public PreviewListSelectionListener(final Model model, final JList<File> listWidget) {
+            this.model = model;
+            this.listWidget = listWidget;
+            this.enable = true;
+        }
+
+        public void setEnable(final boolean enable) {
+            this.enable = enable;
+        }
+
+        @Override
+        public void valueChanged(final ListSelectionEvent event) {
+            if (!event.getValueIsAdjusting() && this.enable) {
+                File file = this.listWidget.getSelectedValue();
+                this.model.setInputFile(file);
+            }
         }
     }
 
