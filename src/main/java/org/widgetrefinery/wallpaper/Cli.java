@@ -22,15 +22,14 @@ import org.widgetrefinery.util.clParser.Argument;
 import org.widgetrefinery.util.clParser.BooleanArgumentType;
 import org.widgetrefinery.util.clParser.CLParser;
 import org.widgetrefinery.util.clParser.StringArgumentType;
-import org.widgetrefinery.wallpaper.common.ImageUtil;
-import org.widgetrefinery.wallpaper.os.OSSupport;
-import org.widgetrefinery.wallpaper.os.OSUtil;
+import org.widgetrefinery.util.event.EventBus;
+import org.widgetrefinery.wallpaper.common.Model;
 import org.widgetrefinery.wallpaper.swing.MainWindow;
 
 import javax.swing.SwingUtilities;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -87,7 +86,14 @@ public class Cli {
                                          new Argument("r|refresh",
                                                       new BooleanArgumentType(),
                                                       "Instruct the OS to reload the user settings. Only certain OS'es are supported"));
+        if (clParser.hasArguments()) {
+            doTui(clParser);
+        } else {
+            doGui(clParser);
+        }
+    }
 
+    protected void doTui(final CLParser clParser) throws IOException {
         if (Boolean.TRUE == clParser.getValue("help")) {
             System.err.println(clParser.getHelpMessage(Cli.class, null, "Reformats an image for use as a multi-monitor wallpaper."));
             System.exit(0);
@@ -95,16 +101,6 @@ public class Cli {
         if (Boolean.TRUE == clParser.getValue("license")) {
             clParser.displayLicense(System.out);
             System.exit(0);
-        }
-        if (!clParser.hasArguments()) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    MainWindow mainWindow = new MainWindow();
-                    mainWindow.setVisible(true);
-                }
-            });
-            return;
         }
 
         String inputFilename = clParser.getValue("input");
@@ -117,27 +113,39 @@ public class Cli {
             System.err.println("missing output filename");
             System.exit(-1);
         }
-        File inputFile = new File(inputFilename);
-        File outputFile = new File(outputFilename);
 
-        ImageUtil imageUtil = new ImageUtil();
-        BufferedImage img = imageUtil.formatImage(inputFile);
-        imageUtil.saveImage(img, outputFile, Boolean.TRUE == clParser.getValue("force"));
-
-        boolean configure = Boolean.TRUE == clParser.getValue("configure");
-        boolean refresh = Boolean.TRUE == clParser.getValue("refresh");
-        if (configure || refresh) {
-            OSSupport osSupport = OSUtil.getOSSupport();
-            if (null != osSupport) {
-                if (configure) {
-                    osSupport.updateWallpaperSettings(outputFile);
-                }
-                if (refresh) {
-                    osSupport.reloadWallpaperSettings();
-                }
-            } else {
-                System.err.println("Sorry, we do not support updating your OS.");
-            }
+        EventBus eventBus = new EventBus();
+        Model model = new Model(eventBus);
+        model.setInputFile(new File(inputFilename));
+        model.setOutputFile(new File(outputFilename));
+        model.setConfigOS(Boolean.TRUE == clParser.getValue("configure"));
+        model.setRefreshOS(Boolean.TRUE == clParser.getValue("refresh"));
+        Model.Result result = model.process(Boolean.TRUE == clParser.getValue("force"));
+        if (Model.Result.SAME_INPUT_OUTPUT_ERROR == result) {
+            System.err.println("Input and output files cannot be the same.");
+        } else if (Model.Result.OUTPUT_EXISTS_ERROR == result) {
+            System.err.println("Output filename already exists (" + outputFilename + ").");
+        } else if (Model.Result.OTHER_ERROR == result) {
+            System.err.println("Failed to process image. Please check your options and try again.");
         }
+    }
+
+    protected void doGui(final CLParser clParser) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                EventBus eventBus = new EventBus();
+                Model model;
+                List<String> leftovers = clParser.getLeftovers();
+                if (!leftovers.isEmpty()) {
+                    File workingDirectory = new File(leftovers.get(0));
+                    model = new Model(eventBus, workingDirectory);
+                } else {
+                    model = new Model(eventBus);
+                }
+                MainWindow mainWindow = new MainWindow(eventBus, model);
+                mainWindow.setVisible(true);
+            }
+        });
     }
 }

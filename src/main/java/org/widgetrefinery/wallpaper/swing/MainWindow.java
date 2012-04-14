@@ -32,10 +32,7 @@ import java.io.File;
  * Since: 3/12/12 8:41 PM
  */
 public class MainWindow extends JFrame {
-    public MainWindow() throws HeadlessException {
-        EventBus eventBus = new EventBus();
-        Model model = new Model(eventBus);
-
+    public MainWindow(final EventBus eventBus, final Model model) throws HeadlessException {
         eventBus.add(SetWorkingDirectoryEvent.class, new EventListener<SetWorkingDirectoryEvent>() {
             @Override
             public void notify(final SetWorkingDirectoryEvent event) {

@@ -167,7 +167,7 @@ public class ControlPanel extends JPanel {
             }
         }
         if (Model.Result.OTHER_ERROR == result) {
-            JOptionPane.showMessageDialog(this, "Failed to process image. Please check your inputs and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Failed to process image. Please check your options and try again.", "Error", JOptionPane.ERROR_MESSAGE);
         }
         return retry;
     }
