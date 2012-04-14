@@ -19,17 +19,16 @@ package org.widgetrefinery.wallpaper.swing;
 
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
+import org.widgetrefinery.wallpaper.common.Model;
+import org.widgetrefinery.wallpaper.event.SetInputFileEvent;
 import org.widgetrefinery.wallpaper.os.OSSupport;
 import org.widgetrefinery.wallpaper.os.OSUtil;
-import org.widgetrefinery.wallpaper.swing.event.RetrySaveEvent;
-import org.widgetrefinery.wallpaper.swing.event.SetInputFileEvent;
-import org.widgetrefinery.wallpaper.swing.event.SetOutputFileEvent;
-import org.widgetrefinery.wallpaper.swing.event.SetWorkingDirectoryEvent;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -40,14 +39,17 @@ import java.io.File;
  * Since: 3/12/12 10:58 PM
  */
 public class ControlPanel extends JPanel {
+    private final Model model;
+
     public ControlPanel(final EventBus eventBus, final Model model) {
+        this.model = model;
         JFileChooser fileChooser = new JFileChooser(model.getWorkingDirectory());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(createOpenPanel(eventBus, model, fileChooser));
+        add(createOpenPanel(model, fileChooser));
         add(createSavePanel(eventBus, model, fileChooser));
     }
 
-    protected JPanel createOpenPanel(final EventBus eventBus, final Model model, final JFileChooser fileChooser) {
+    protected JPanel createOpenPanel(final Model model, final JFileChooser fileChooser) {
         JButton browse = new JButton("Browse...");
         browse.addActionListener(new ActionListener() {
             @Override
@@ -59,7 +61,6 @@ public class ControlPanel extends JPanel {
                 if (JFileChooser.APPROVE_OPTION == result) {
                     File file = fileChooser.getSelectedFile();
                     model.setWorkingDirectory(file);
-                    eventBus.fireEvent(new SetWorkingDirectoryEvent(file));
                 }
             }
         });
@@ -105,39 +106,18 @@ public class ControlPanel extends JPanel {
                 fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 int result = fileChooser.showSaveDialog(ControlPanel.this);
                 if (JFileChooser.APPROVE_OPTION == result) {
-                    File file = fileChooser.getSelectedFile();
-                    if (!file.getName().contains(".")) {
-                        FileFilter fileFilter = fileChooser.getFileFilter();
-                        if (null != fileFilter && fileFilter instanceof FileNameExtensionFilter) {
-                            FileNameExtensionFilter fnef = (FileNameExtensionFilter) fileFilter;
-                            String[] extensions = fnef.getExtensions();
-                            if (null != extensions && 0 < extensions.length) {
-                                file = new File(file.getParentFile(), file.getName() + "." + extensions[0]);
-                            }
-                        }
+                    setOutputFile(fileChooser);
+                    if (doSave()) {
+                        save.doClick();
                     }
-                    model.setOutputFile(file);
-                    eventBus.fireEvent(new SetOutputFileEvent(file));
                 }
             }
         });
 
-        eventBus.add(SetWorkingDirectoryEvent.class, new EventListener<SetWorkingDirectoryEvent>() {
-            @Override
-            public void notify(final SetWorkingDirectoryEvent event) {
-                save.setEnabled(null != model.getInputFile());
-            }
-        });
         eventBus.add(SetInputFileEvent.class, new EventListener<SetInputFileEvent>() {
             @Override
             public void notify(final SetInputFileEvent event) {
                 save.setEnabled(null != event.getValue());
-            }
-        });
-        eventBus.add(RetrySaveEvent.class, new EventListener<RetrySaveEvent>() {
-            @Override
-            public void notify(final RetrySaveEvent event) {
-                save.doClick();
             }
         });
 
@@ -155,5 +135,49 @@ public class ControlPanel extends JPanel {
         BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
         panel.setLayout(layout);
         return panel;
+    }
+
+    protected void setOutputFile(final JFileChooser fileChooser) {
+        File file = fileChooser.getSelectedFile();
+        if (!file.getName().contains(".")) {
+            FileFilter fileFilter = fileChooser.getFileFilter();
+            if (null != fileFilter && fileFilter instanceof FileNameExtensionFilter) {
+                FileNameExtensionFilter fnef = (FileNameExtensionFilter) fileFilter;
+                String[] extensions = fnef.getExtensions();
+                if (null != extensions && 0 < extensions.length) {
+                    file = new File(file.getParentFile(), file.getName() + "." + extensions[0]);
+                }
+            }
+        }
+        this.model.setOutputFile(file);
+    }
+
+    protected boolean doSave() {
+        boolean retry = false;
+        Model.Result result = process(false);
+        if (Model.Result.SAME_INPUT_OUTPUT_ERROR == result) {
+            JOptionPane.showMessageDialog(this, "Input and output files cannot be the same.", "Error", JOptionPane.ERROR_MESSAGE);
+            retry = true;
+        } else if (Model.Result.OUTPUT_EXISTS_ERROR == result) {
+            int r = JOptionPane.showConfirmDialog(this, "Overwrite existing file?", this.model.getOutputFile().toString(), JOptionPane.YES_NO_OPTION);
+            if (JOptionPane.YES_OPTION == r) {
+                result = process(true);
+            } else {
+                retry = true;
+            }
+        }
+        if (Model.Result.OTHER_ERROR == result) {
+            JOptionPane.showMessageDialog(this, "Failed to process image. Please check your inputs and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return retry;
+    }
+
+    protected Model.Result process(final boolean overwrite) {
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        try {
+            return this.model.process(overwrite);
+        } finally {
+            setCursor(null);
+        }
     }
 }

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.widgetrefinery.wallpaper.swing.event;
+package org.widgetrefinery.wallpaper.event;
 
 import org.widgetrefinery.util.event.ValueEvent;
 

@@ -21,8 +21,8 @@ import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.wallpaper.common.DesktopInfo;
 import org.widgetrefinery.wallpaper.common.ImageUtil;
-import org.widgetrefinery.wallpaper.swing.event.SetInputFileEvent;
-import org.widgetrefinery.wallpaper.swing.event.SetWorkingDirectoryEvent;
+import org.widgetrefinery.wallpaper.common.Model;
+import org.widgetrefinery.wallpaper.event.SetWorkingDirectoryEvent;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
@@ -60,7 +60,6 @@ public class PreviewPanel extends JScrollPane {
                 if (!event.getValueIsAdjusting() && PreviewPanel.this.enableListener) {
                     File file = PreviewPanel.this.listWidget.getSelectedValue();
                     model.setInputFile(file);
-                    eventBus.fireEvent(new SetInputFileEvent(file));
                 }
             }
         });

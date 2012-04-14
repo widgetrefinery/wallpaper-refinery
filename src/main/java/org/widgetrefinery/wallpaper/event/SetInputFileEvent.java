@@ -15,12 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.widgetrefinery.wallpaper.swing.event;
+package org.widgetrefinery.wallpaper.event;
 
-import org.widgetrefinery.util.event.Event;
+import org.widgetrefinery.util.event.ValueEvent;
+
+import java.io.File;
 
 /**
- * Since: 4/12/12 10:58 PM
+ * Since: 4/11/12 10:08 PM
  */
-public class RetrySaveEvent implements Event {
+public class SetInputFileEvent extends ValueEvent<File> {
+    public SetInputFileEvent(final File value) {
+        super(value);
+    }
 }
