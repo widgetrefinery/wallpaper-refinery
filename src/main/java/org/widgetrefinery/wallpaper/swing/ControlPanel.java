@@ -154,30 +154,36 @@ public class ControlPanel extends JPanel {
 
     protected boolean doSave() {
         boolean retry = false;
-        Model.Result result = process(false);
-        if (Model.Result.SAME_INPUT_OUTPUT_ERROR == result) {
-            JOptionPane.showMessageDialog(this, "Input and output files cannot be the same.", "Error", JOptionPane.ERROR_MESSAGE);
-            retry = true;
-        } else if (Model.Result.OUTPUT_EXISTS_ERROR == result) {
-            int r = JOptionPane.showConfirmDialog(this, "Overwrite existing file?", this.model.getOutputFile().toString(), JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == r) {
-                result = process(true);
+        Model.Error error = process(false);
+        if (Model.Error.OUTPUT_EXISTS == error) {
+            int result = JOptionPane.showConfirmDialog(this, "Overwrite existing file?", this.model.getOutputFile().toString(), JOptionPane.YES_NO_OPTION);
+            if (JOptionPane.YES_OPTION == result) {
+                process(true);
             } else {
                 retry = true;
             }
-        }
-        if (Model.Result.OTHER_ERROR == result) {
-            JOptionPane.showMessageDialog(this, "Failed to process image. Please check your options and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            retry = Model.Error.SAME_INPUT_OUTPUT == error;
         }
         return retry;
     }
 
-    protected Model.Result process(final boolean overwrite) {
+    protected Model.Error process(final boolean overwrite) {
+        Model.Error error;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try {
-            return this.model.process(overwrite);
+            error = this.model.process(overwrite);
         } finally {
             setCursor(null);
         }
+
+        if (Model.Error.NO_INPUT == error) {
+            JOptionPane.showMessageDialog(this, "Not enough data to proceed. Please check your options.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else if (Model.Error.SAME_INPUT_OUTPUT == error) {
+            JOptionPane.showMessageDialog(this, "Input and output files cannot be the same.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else if (Model.Error.OTHER == error) {
+            JOptionPane.showMessageDialog(this, "Failed to process image. Please check your options and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return error;
     }
 }

@@ -109,16 +109,16 @@ public class Model {
         this.refreshOS = refreshOS;
     }
 
-    public Result process(final boolean overwrite) {
-        Result result = Result.SUCCESS;
+    public Error process(final boolean overwrite) {
+        Error error = null;
         File input = getInputFile();
         File output = getOutputFile();
         if (null == input || null == output) {
-            result = Result.NO_INPUT_ERROR;
+            error = Error.NO_INPUT;
         } else if (input.equals(output)) {
-            result = Result.SAME_INPUT_OUTPUT_ERROR;
+            error = Error.SAME_INPUT_OUTPUT;
         } else if (output.exists() && !overwrite) {
-            result = Result.OUTPUT_EXISTS_ERROR;
+            error = Error.OUTPUT_EXISTS;
         } else {
             try {
                 ImageUtil imageUtil = new ImageUtil();
@@ -134,16 +134,16 @@ public class Model {
                     }
                 }
             } catch (Exception e) {
-                result = Result.OTHER_ERROR;
+                error = Error.OTHER;
                 if (logger.isLoggable(Level.WARNING)) {
                     logger.warning(StringUtil.format("failed to process image", e));
                 }
             }
         }
-        return result;
+        return error;
     }
 
-    public static enum Result {
-        SUCCESS, NO_INPUT_ERROR, SAME_INPUT_OUTPUT_ERROR, OUTPUT_EXISTS_ERROR, OTHER_ERROR
+    public static enum Error {
+        NO_INPUT, SAME_INPUT_OUTPUT, OUTPUT_EXISTS, OTHER
     }
 }

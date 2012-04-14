@@ -120,13 +120,15 @@ public class Cli {
         model.setOutputFile(new File(outputFilename));
         model.setConfigOS(Boolean.TRUE == clParser.getValue("configure"));
         model.setRefreshOS(Boolean.TRUE == clParser.getValue("refresh"));
-        Model.Result result = model.process(Boolean.TRUE == clParser.getValue("force"));
-        if (Model.Result.SAME_INPUT_OUTPUT_ERROR == result) {
+        Model.Error error = model.process(Boolean.TRUE == clParser.getValue("force"));
+        if (Model.Error.NO_INPUT == error) {
+            System.err.println("Not enough data to proceed. Please check your options.");
+        } else if (Model.Error.SAME_INPUT_OUTPUT == error) {
             System.err.println("Input and output files cannot be the same.");
-        } else if (Model.Result.OUTPUT_EXISTS_ERROR == result) {
+        } else if (Model.Error.OUTPUT_EXISTS == error) {
             System.err.println("Output filename already exists (" + outputFilename + ").");
-        } else if (Model.Result.OTHER_ERROR == result) {
-            System.err.println("Failed to process image. Please check your options and try again.");
+        } else if (Model.Error.OTHER == error) {
+            System.err.println("Failed to process image. Please check your options.");
         }
     }
 
