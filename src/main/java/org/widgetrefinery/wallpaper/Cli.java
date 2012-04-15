@@ -17,7 +17,7 @@
 
 package org.widgetrefinery.wallpaper;
 
-import org.widgetrefinery.util.StringUtil;
+import org.widgetrefinery.util.BadUserInputException;
 import org.widgetrefinery.util.cl.*;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.lang.Translator;
@@ -29,6 +29,8 @@ import javax.swing.SwingUtilities;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Loads the wallpaper-refinery application. It supports both text and
@@ -37,12 +39,14 @@ import java.util.List;
  * @since 2/20/12 9:12 PM
  */
 public class Cli extends AbstractCli {
+    private static final Logger logger = Logger.getLogger(Cli.class.getName());
+
     public static void main(String[] args) {
         new Cli().start(args);
     }
 
     @Override
-    protected void processCommandLine(final String[] args) throws IOException, InterruptedException {
+    protected void processCommandLine(final String[] args) throws IOException {
         CLParser clParser = new CLParser(args,
                                          new Argument("c|configure",
                                                       new BooleanArgumentType(),
@@ -82,32 +86,21 @@ public class Cli extends AbstractCli {
             System.exit(0);
         }
 
-        String inputFilename = clParser.getValue("input");
-        String outputFilename = clParser.getValue("output");
-        if (StringUtil.isBlank(inputFilename)) {
-            System.err.println("missing input filename");
-            System.exit(-1);
-        }
-        if (StringUtil.isBlank(outputFilename)) {
-            System.err.println("missing output filename");
-            System.exit(-1);
-        }
-
         EventBus eventBus = new EventBus();
         Model model = new Model(eventBus);
-        model.setInputFile(new File(inputFilename));
-        model.setOutputFile(new File(outputFilename));
+        model.setInputFile(new File(clParser.<String>getValue("input")));
+        model.setOutputFile(new File(clParser.<String>getValue("output")));
         model.setConfigOS(Boolean.TRUE == clParser.getValue("configure"));
         model.setRefreshOS(Boolean.TRUE == clParser.getValue("refresh"));
-        Model.Error error = model.process(Boolean.TRUE == clParser.getValue("force"));
-        if (Model.Error.NO_INPUT == error) {
-            System.err.println(Translator.get(WallpaperTranslationKey.SAVE_ERROR_NO_INPUT));
-        } else if (Model.Error.SAME_INPUT_OUTPUT == error) {
-            System.err.println(Translator.get(WallpaperTranslationKey.SAVE_ERROR_SAME_INPUT_OUTPUT));
-        } else if (Model.Error.OUTPUT_EXISTS == error) {
-            System.err.println(Translator.get(WallpaperTranslationKey.SAVE_ERROR_OUTPUT_EXISTS, outputFilename));
-        } else if (Model.Error.OTHER == error) {
-            System.err.println(Translator.get(WallpaperTranslationKey.SAVE_ERROR_OTHER));
+        try {
+            model.process(Boolean.TRUE == clParser.getValue("force"));
+        } catch (BadUserInputException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg = Translator.get(WallpaperTranslationKey.PROCESS_ERROR_OTHER);
+            logger.log(Level.FINE, msg, e);
+            System.err.println(msg);
+            System.exit(-1);
         }
     }
 

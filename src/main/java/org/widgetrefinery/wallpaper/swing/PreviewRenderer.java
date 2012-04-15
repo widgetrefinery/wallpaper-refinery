@@ -77,19 +77,28 @@ public class PreviewRenderer implements ListCellRenderer<File> {
             if (null == this.image || this.loadTimestamp < this.file.lastModified()) {
                 try {
                     this.image = this.imageUtil.previewImage(this.file);
+                    if (null == this.image) {
+                        logger.log(Level.FINE, "failed to load image " + this.file);
+                        this.image = generateErrorImage();
+                    }
                 } catch (Exception e) {
                     logger.log(Level.FINE, "failed to load image " + this.file, e);
-                    Rectangle bounds = this.imageUtil.getBounds();
-                    this.image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_3BYTE_BGR);
-                    Graphics2D g2d = this.image.createGraphics();
-                    g2d.setColor(Color.RED);
-                    g2d.drawLine(0, 0, bounds.width, bounds.height);
-                    g2d.drawLine(0, bounds.height, bounds.width, 0);
-                    g2d.dispose();
+                    this.image = generateErrorImage();
                 }
                 this.loadTimestamp = System.currentTimeMillis();
             }
             return this.image;
+        }
+
+        protected BufferedImage generateErrorImage() {
+            Rectangle bounds = this.imageUtil.getBounds();
+            BufferedImage image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_3BYTE_BGR);
+            Graphics2D g2d = image.createGraphics();
+            g2d.setColor(Color.RED);
+            g2d.drawLine(0, 0, bounds.width, bounds.height);
+            g2d.drawLine(0, bounds.height, bounds.width, 0);
+            g2d.dispose();
+            return image;
         }
 
         public void setSelected(final boolean selected) {

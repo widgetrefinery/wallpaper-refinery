@@ -17,9 +17,13 @@
 
 package org.widgetrefinery.wallpaper.swing;
 
+import org.widgetrefinery.util.BadUserInputException;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
+import org.widgetrefinery.util.lang.TranslationKey;
+import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
+import org.widgetrefinery.wallpaper.common.WallpaperTranslationKey;
 import org.widgetrefinery.wallpaper.event.SetInputFileEvent;
 import org.widgetrefinery.wallpaper.os.OSSupport;
 import org.widgetrefinery.wallpaper.os.OSUtil;
@@ -34,11 +38,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Since: 3/12/12 10:58 PM
  */
 public class ControlPanel extends JPanel {
+    private static final Logger logger = Logger.getLogger(ControlPanel.class.getName());
+
     private final Model model;
 
     public ControlPanel(final EventBus eventBus, final Model model) {
@@ -153,37 +162,42 @@ public class ControlPanel extends JPanel {
     }
 
     protected boolean doSave() {
-        boolean retry = false;
-        Model.Error error = process(false);
-        if (Model.Error.OUTPUT_EXISTS == error) {
+        boolean retry;
+        try {
+            retry = doSave(false);
+        } catch (BadUserInputException e) {
             int result = JOptionPane.showConfirmDialog(this, "Overwrite existing file?", this.model.getOutputFile().toString(), JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == result) {
-                process(true);
-            } else {
-                retry = true;
-            }
-        } else {
-            retry = Model.Error.SAME_INPUT_OUTPUT == error;
+            retry = JOptionPane.NO_OPTION == result || doSave(true);
         }
         return retry;
     }
 
-    protected Model.Error process(final boolean overwrite) {
-        Model.Error error;
+    protected boolean doSave(final boolean overwrite) {
+        boolean retry = false;
+        try {
+            process(overwrite);
+        } catch (BadUserInputException e) {
+            if (!overwrite && e.getKey() == WallpaperTranslationKey.PROCESS_ERROR_OUTPUT_EXISTS) {
+                throw e;
+            } else {
+                TranslationKey key = e.getKey();
+                retry = key instanceof WallpaperTranslationKey && ((WallpaperTranslationKey) key).isRetryGuiSave();
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            String msg = Translator.get(WallpaperTranslationKey.PROCESS_ERROR_OTHER);
+            logger.log(Level.WARNING, msg, e);
+            JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return retry;
+    }
+
+    protected void process(final boolean overwrite) throws IOException, InterruptedException {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try {
-            error = this.model.process(overwrite);
+            this.model.process(overwrite);
         } finally {
             setCursor(null);
         }
-
-        if (Model.Error.NO_INPUT == error) {
-            JOptionPane.showMessageDialog(this, "Not enough data to proceed. Please check your options.", "Error", JOptionPane.ERROR_MESSAGE);
-        } else if (Model.Error.SAME_INPUT_OUTPUT == error) {
-            JOptionPane.showMessageDialog(this, "Input and output files cannot be the same.", "Error", JOptionPane.ERROR_MESSAGE);
-        } else if (Model.Error.OTHER == error) {
-            JOptionPane.showMessageDialog(this, "Failed to process image. Please check your options and try again.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        return error;
     }
 }

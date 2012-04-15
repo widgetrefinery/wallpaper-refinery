@@ -26,19 +26,33 @@ import org.widgetrefinery.util.lang.TranslationKey;
  * @since 4/14/12 11:07 AM
  */
 public enum WallpaperTranslationKey implements TranslationKey {
-    SAVE_ERROR_NO_INPUT("save.error.no_input"),
-    SAVE_ERROR_SAME_INPUT_OUTPUT("save.error.same_input_output"),
-    SAVE_ERROR_OUTPUT_EXISTS("save.error.output_exists"),
-    SAVE_ERROR_OTHER("save.error.other");
+    PROCESS_ERROR_NO_INPUT("process.error.no_input"),
+    PROCESS_ERROR_INPUT_DOES_NOT_EXIST("process.error.input_does_not_exist"),
+    PROCESS_ERROR_BAD_INPUT("process.error.bad_input"),
+    PROCESS_ERROR_NO_OUTPUT("process.error.no_output", true),
+    PROCESS_ERROR_OUTPUT_EXISTS("process.error.output_exists"),
+    PROCESS_ERROR_BAD_OUTPUT_NAME("process.error.bad_output_name", true),
+    PROCESS_ERROR_SAME_INPUT_OUTPUT("process.error.same_input_output", true),
+    PROCESS_ERROR_OTHER("process.error.other");
 
-    private final String key;
+    private final String  key;
+    private final boolean retryGuiSave;
 
     private WallpaperTranslationKey(final String key) {
+        this(key, false);
+    }
+
+    private WallpaperTranslationKey(final String key, final boolean retryGuiSave) {
         this.key = key;
+        this.retryGuiSave = retryGuiSave;
     }
 
     @Override
     public String getKey() {
         return this.key;
+    }
+
+    public boolean isRetryGuiSave() {
+        return this.retryGuiSave;
     }
 }

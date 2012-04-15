@@ -17,6 +17,7 @@
 
 package org.widgetrefinery.wallpaper.common;
 
+import org.widgetrefinery.util.BadUserInputException;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.wallpaper.event.SetInputFileEvent;
 import org.widgetrefinery.wallpaper.event.SetWorkingDirectoryEvent;
@@ -25,8 +26,7 @@ import org.widgetrefinery.wallpaper.os.OSUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.IOException;
 
 /**
  * Manages the settings used throughout the application.
@@ -34,8 +34,6 @@ import java.util.logging.Logger;
  * @since 4/11/12 9:57 PM
  */
 public class Model {
-    private static final Logger logger = Logger.getLogger(Model.class.getName());
-
     private final EventBus eventBus;
     private       File     workingDirectory;
     private       File     inputFile;
@@ -197,44 +195,45 @@ public class Model {
      * Generate a new wallpaper image and update the OS as configured.
      *
      * @param overwrite whether or not to overwrite the output file
-     * @return any error that occurred
+     * @throws BadUserInputException if there is a problem with the user-supplied parameters
+     * @throws IOException           if an IO error occurred
+     * @throws InterruptedException  if the operation was interrupted
      */
-    public Error process(final boolean overwrite) {
-        Error error = null;
+    public void process(final boolean overwrite) throws BadUserInputException, IOException, InterruptedException {
         File input = getInputFile();
+        if (null == input) {
+            throw new BadUserInputException(WallpaperTranslationKey.PROCESS_ERROR_NO_INPUT);
+        }
+        if (!input.exists()) {
+            throw new BadUserInputException(WallpaperTranslationKey.PROCESS_ERROR_INPUT_DOES_NOT_EXIST, input);
+        }
+
         File output = getOutputFile();
-        if (null == input || null == output) {
-            error = Error.NO_INPUT;
-        } else if (input.equals(output)) {
-            error = Error.SAME_INPUT_OUTPUT;
-        } else if (output.exists() && !overwrite) {
-            error = Error.OUTPUT_EXISTS;
-        } else {
-            try {
-                ImageUtil imageUtil = new ImageUtil();
-                BufferedImage image = imageUtil.formatImage(input);
-                imageUtil.saveImage(image, output, overwrite);
-                OSSupport osSupport = OSUtil.getOSSupport();
-                if (null != osSupport) {
-                    if (isConfigOS()) {
-                        osSupport.updateWallpaperSettings(output);
-                    }
-                    if (isRefreshOS()) {
-                        osSupport.reloadWallpaperSettings();
-                    }
-                }
-            } catch (Exception e) {
-                error = Error.OTHER;
-                logger.log(Level.WARNING, "failed to process image", e);
+        if (null == output) {
+            throw new BadUserInputException(WallpaperTranslationKey.PROCESS_ERROR_NO_OUTPUT);
+        }
+        if (input.equals(output)) {
+            throw new BadUserInputException(WallpaperTranslationKey.PROCESS_ERROR_SAME_INPUT_OUTPUT, output);
+        }
+        if (output.exists() && !overwrite) {
+            throw new BadUserInputException(WallpaperTranslationKey.PROCESS_ERROR_OUTPUT_EXISTS, output);
+        }
+
+        ImageUtil imageUtil = new ImageUtil();
+        BufferedImage image = imageUtil.formatImage(input);
+        if (null == image) {
+            throw new BadUserInputException(WallpaperTranslationKey.PROCESS_ERROR_BAD_INPUT, input);
+        }
+        imageUtil.saveImage(image, output);
+
+        OSSupport osSupport = OSUtil.getOSSupport();
+        if (null != osSupport) {
+            if (isConfigOS()) {
+                osSupport.updateWallpaperSettings(output);
+            }
+            if (isRefreshOS()) {
+                osSupport.reloadWallpaperSettings();
             }
         }
-        return error;
-    }
-
-    /**
-     * List of possible errors from {@link Model#process(boolean)}
-     */
-    public static enum Error {
-        NO_INPUT, SAME_INPUT_OUTPUT, OUTPUT_EXISTS, OTHER
     }
 }

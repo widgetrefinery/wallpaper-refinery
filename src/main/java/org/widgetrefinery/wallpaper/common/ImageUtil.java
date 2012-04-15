@@ -17,6 +17,8 @@
 
 package org.widgetrefinery.wallpaper.common;
 
+import org.widgetrefinery.util.BadUserInputException;
+
 import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -33,6 +35,7 @@ import java.util.List;
  * {@link org.widgetrefinery.wallpaper.common.DesktopInfo} to format images
  * suitable for use as a multi-head wallpaper.
  *
+ * @see javax.imageio.ImageIO
  * @since 2/20/12 5:24 PM
  */
 public class ImageUtil {
@@ -98,15 +101,15 @@ public class ImageUtil {
 
     /**
      * Reads an image into memory and formats it for use as a multi-head
-     * wallpaper.
+     * wallpaper. If the image type is not supported then null is returned.
      *
      * @param file image file to load and format
-     * @return formatted image
+     * @return formatted image or null
      * @throws IOException if an error occurred loading the image
      */
     public BufferedImage formatImage(final File file) throws IOException {
         BufferedImage img = ImageIO.read(file);
-        return formatImage(img);
+        return null != img ? formatImage(img) : null;
     }
 
     /**
@@ -123,15 +126,16 @@ public class ImageUtil {
     /**
      * Reads an image into memory and formats it for use as a multi-head
      * wallpaper. The translation step is skipped and a mask is added to
-     * highlight which portions are visible.
+     * highlight which portions are visible. If the image type is not supported
+     * then null is returned.
      *
      * @param file image file to load and format
-     * @return formatted preview image
+     * @return formatted preview image or null
      * @throws IOException if an error occurred loading the image
      */
     public BufferedImage previewImage(final File file) throws IOException {
         BufferedImage img = ImageIO.read(file);
-        return previewImage(img);
+        return null != img ? previewImage(img) : null;
     }
 
     /**
@@ -208,30 +212,24 @@ public class ImageUtil {
     }
 
     /**
-     * Saves the given image to the given file. An exception is thrown if the
-     * file already exists unless overwriteExisting is true.
+     * Saves the given image to the given file.
      *
-     * @param img               image to save
-     * @param file              filename to save the image to
-     * @param overwriteExisting allow overwriting an existing file
-     * @throws IllegalArgumentException if the file already exists and overwriteExisting is false or the filename does not contain an extension
-     * @throws IOException              if an error occurred writing the image
+     * @param img  image to save
+     * @param file filename to save the image to
+     * @throws BadUserInputException if there is a problem with the output filename
+     * @throws IOException           if an error occurred writing the image
      */
-    public void saveImage(final RenderedImage img, final File file, final boolean overwriteExisting) throws IllegalArgumentException, IOException {
+    public void saveImage(final RenderedImage img, final File file) throws BadUserInputException, IOException {
         String filename = file.getName();
         int ndx = filename.lastIndexOf('.');
         if (-1 == ndx) {
-            throw new IllegalArgumentException("Output filename does not contain an extension (" + file + ')');
+            throw new BadUserInputException(WallpaperTranslationKey.PROCESS_ERROR_BAD_OUTPUT_NAME, filename);
         }
         String ext = filename.substring(ndx + 1);
 
-        if (file.exists() && !overwriteExisting) {
-            throw new IllegalArgumentException("Output filename already exists (" + file.getAbsolutePath() + ')');
-        }
-
         boolean result = ImageIO.write(img, ext, file);
         if (!result) {
-            throw new IllegalArgumentException("Unsupported image type (" + ext + ')');
+            throw new BadUserInputException(WallpaperTranslationKey.PROCESS_ERROR_BAD_OUTPUT_NAME, filename);
         }
     }
 }
