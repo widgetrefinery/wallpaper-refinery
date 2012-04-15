@@ -26,6 +26,14 @@ import org.widgetrefinery.util.lang.TranslationKey;
  * @since 4/14/12 11:07 AM
  */
 public enum WallpaperTranslationKey implements TranslationKey {
+    CL_OPT_CONFIGURE_DESC("cl.option.configure.description"),
+    CL_OPT_FORCE_DESC("cl.option.force.description"),
+    CL_OPT_HELP_DESC("cl.option.help.description"),
+    CL_OPT_INPUT_DESC("cl.option.input.description"),
+    CL_OPT_LICENSE_DESC("cl.option.license.description"),
+    CL_OPT_OUTPUT_DESC("cl.option.output.description"),
+    CL_OPT_REFRESH_DESC("cl.option.refresh.description"),
+
     PROCESS_ERROR_NO_INPUT("process.error.no_input"),
     PROCESS_ERROR_INPUT_DOES_NOT_EXIST("process.error.input_does_not_exist"),
     PROCESS_ERROR_BAD_INPUT("process.error.bad_input"),

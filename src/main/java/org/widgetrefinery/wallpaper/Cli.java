@@ -50,25 +50,25 @@ public class Cli extends AbstractCli {
         CLParser clParser = new CLParser(args,
                                          new Argument("c|configure",
                                                       new BooleanArgumentType(),
-                                                      "Configure the OS to use the output image as the wallpaper. Only certain OS's are supported"),
+                                                      Translator.get(WallpaperTranslationKey.CL_OPT_CONFIGURE_DESC)),
                                          new Argument("f|force",
                                                       new BooleanArgumentType(),
-                                                      "Override the output file if it exists."),
+                                                      Translator.get(WallpaperTranslationKey.CL_OPT_FORCE_DESC)),
                                          new Argument("h|help",
                                                       new BooleanArgumentType(),
-                                                      "Displays this help message."),
+                                                      Translator.get(WallpaperTranslationKey.CL_OPT_HELP_DESC)),
                                          new Argument("i|input",
                                                       new StringArgumentType(),
-                                                      "Input image filename."),
+                                                      Translator.get(WallpaperTranslationKey.CL_OPT_INPUT_DESC)),
                                          new Argument("l|license",
                                                       new BooleanArgumentType(),
-                                                      "Displays the GPLv3 license that this software is released under."),
+                                                      Translator.get(WallpaperTranslationKey.CL_OPT_LICENSE_DESC)),
                                          new Argument("o|output",
                                                       new StringArgumentType(),
-                                                      "Output image filename."),
+                                                      Translator.get(WallpaperTranslationKey.CL_OPT_OUTPUT_DESC)),
                                          new Argument("r|refresh",
                                                       new BooleanArgumentType(),
-                                                      "Instruct the OS to reload the user settings. Only certain OS's are supported"));
+                                                      Translator.get(WallpaperTranslationKey.CL_OPT_REFRESH_DESC)));
         if (clParser.hasArguments()) {
             doTui(clParser);
         } else {
