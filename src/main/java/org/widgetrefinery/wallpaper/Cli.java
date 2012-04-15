@@ -22,7 +22,7 @@ import org.widgetrefinery.util.clParser.*;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
-import org.widgetrefinery.wallpaper.lang.WallpaperTranslatorKey;
+import org.widgetrefinery.wallpaper.lang.WallpaperTranslationKey;
 import org.widgetrefinery.wallpaper.swing.MainWindow;
 
 import javax.swing.SwingUtilities;
@@ -75,7 +75,7 @@ public class Cli extends AbstractCli {
             System.exit(0);
         }
         if (Boolean.TRUE == clParser.getValue("license")) {
-            clParser.displayLicense(System.out);
+            clParser.getLicense(System.out);
             System.exit(0);
         }
 
@@ -98,13 +98,13 @@ public class Cli extends AbstractCli {
         model.setRefreshOS(Boolean.TRUE == clParser.getValue("refresh"));
         Model.Error error = model.process(Boolean.TRUE == clParser.getValue("force"));
         if (Model.Error.NO_INPUT == error) {
-            System.err.println(Translator.get(WallpaperTranslatorKey.SAVE_ERROR_NO_INPUT));
+            System.err.println(Translator.get(WallpaperTranslationKey.SAVE_ERROR_NO_INPUT));
         } else if (Model.Error.SAME_INPUT_OUTPUT == error) {
-            System.err.println(Translator.get(WallpaperTranslatorKey.SAVE_ERROR_SAME_INPUT_OUTPUT));
+            System.err.println(Translator.get(WallpaperTranslationKey.SAVE_ERROR_SAME_INPUT_OUTPUT));
         } else if (Model.Error.OUTPUT_EXISTS == error) {
-            System.err.println(Translator.get(WallpaperTranslatorKey.SAVE_ERROR_OUTPUT_EXISTS, outputFilename));
+            System.err.println(Translator.get(WallpaperTranslationKey.SAVE_ERROR_OUTPUT_EXISTS, outputFilename));
         } else if (Model.Error.OTHER == error) {
-            System.err.println(Translator.get(WallpaperTranslatorKey.SAVE_ERROR_OTHER));
+            System.err.println(Translator.get(WallpaperTranslationKey.SAVE_ERROR_OTHER));
         }
     }
 

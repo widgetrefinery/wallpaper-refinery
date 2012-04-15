@@ -17,7 +17,7 @@
 
 package org.widgetrefinery.wallpaper.lang;
 
-import org.widgetrefinery.util.lang.TranslatorKey;
+import org.widgetrefinery.util.lang.TranslationKey;
 
 /**
  * List of translator keys for the application.
@@ -25,7 +25,7 @@ import org.widgetrefinery.util.lang.TranslatorKey;
  * @see {@inheritDoc}
  * @since 4/14/12 11:07 AM
  */
-public enum WallpaperTranslatorKey implements TranslatorKey {
+public enum WallpaperTranslationKey implements TranslationKey {
     SAVE_ERROR_NO_INPUT("save.error.no_input"),
     SAVE_ERROR_SAME_INPUT_OUTPUT("save.error.same_input_output"),
     SAVE_ERROR_OUTPUT_EXISTS("save.error.output_exists"),
@@ -33,7 +33,7 @@ public enum WallpaperTranslatorKey implements TranslatorKey {
 
     private final String key;
 
-    private WallpaperTranslatorKey(final String key) {
+    private WallpaperTranslationKey(final String key) {
         this.key = key;
     }
 
