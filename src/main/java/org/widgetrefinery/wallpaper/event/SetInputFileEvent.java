@@ -22,7 +22,9 @@ import org.widgetrefinery.util.event.EventWithPayload;
 import java.io.File;
 
 /**
- * Since: 4/11/12 10:08 PM
+ * Event indicating a new input file as been selected.
+ *
+ * @since 4/11/12 10:08 PM
  */
 public class SetInputFileEvent extends EventWithPayload<File> {
     public SetInputFileEvent(final File value) {

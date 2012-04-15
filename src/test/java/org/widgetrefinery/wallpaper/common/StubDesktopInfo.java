@@ -22,10 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Since: 3/6/12 7:47 PM
+ * @since 3/6/12 7:47 PM
  */
 public class StubDesktopInfo extends DesktopInfo {
-    private static final boolean overrideComputeViewports = true;
+    private static final boolean overrideComputeMonitors = true;
 
     public StubDesktopInfo() {
     }
@@ -35,10 +35,10 @@ public class StubDesktopInfo extends DesktopInfo {
     }
 
     @Override
-    protected List<Rectangle> computeViewports() {
-        if (overrideComputeViewports) {
+    protected List<Rectangle> computeMonitors() {
+        if (overrideComputeMonitors) {
             return Arrays.asList(new Rectangle(0, 0, 6, 4), new Rectangle(-4, -1, 4, 6));
         }
-        return super.computeViewports();
+        return super.computeMonitors();
     }
 }

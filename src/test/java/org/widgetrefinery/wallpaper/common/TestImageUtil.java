@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 import java.awt.image.BufferedImage;
 
 /**
- * Since: 3/7/12 10:11 PM
+ * @since 3/7/12 10:11 PM
  */
 public class TestImageUtil extends TestCase {
     public void testFormatImage() throws Exception {

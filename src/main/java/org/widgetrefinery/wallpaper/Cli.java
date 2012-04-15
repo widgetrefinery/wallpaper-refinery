@@ -22,7 +22,7 @@ import org.widgetrefinery.util.clParser.*;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
-import org.widgetrefinery.wallpaper.lang.WallpaperTranslationKey;
+import org.widgetrefinery.wallpaper.common.WallpaperTranslationKey;
 import org.widgetrefinery.wallpaper.swing.MainWindow;
 
 import javax.swing.SwingUtilities;
@@ -31,7 +31,10 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Since: 2/20/12 9:12 PM
+ * Loads the wallpaper-refinery application. It supports both text and
+ * graphical UIs.
+ *
+ * @since 2/20/12 9:12 PM
  */
 public class Cli extends AbstractCli {
     public static void main(String[] args) {
@@ -43,7 +46,7 @@ public class Cli extends AbstractCli {
         CLParser clParser = new CLParser(args,
                                          new Argument("c|configure",
                                                       new BooleanArgumentType(),
-                                                      "Configure the OS to use the output image as the wallpaper. Only certain OS'es are supported"),
+                                                      "Configure the OS to use the output image as the wallpaper. Only certain OS's are supported"),
                                          new Argument("f|force",
                                                       new BooleanArgumentType(),
                                                       "Override the output file if it exists."),
@@ -61,7 +64,7 @@ public class Cli extends AbstractCli {
                                                       "Output image filename."),
                                          new Argument("r|refresh",
                                                       new BooleanArgumentType(),
-                                                      "Instruct the OS to reload the user settings. Only certain OS'es are supported"));
+                                                      "Instruct the OS to reload the user settings. Only certain OS's are supported"));
         if (clParser.hasArguments()) {
             doTui(clParser);
         } else {

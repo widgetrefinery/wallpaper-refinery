@@ -26,21 +26,33 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Since: 3/5/12 10:19 PM
+ * Utility class for discovering the current monitor layout.
+ *
+ * @since 3/5/12 10:19 PM
  */
 public class DesktopInfo {
-    private final List<Rectangle> viewports;
+    private final List<Rectangle> monitors;
     private final Rectangle       bounds;
 
+    /**
+     * Creates a new instance that describes the current monitor layout.
+     */
     public DesktopInfo() {
-        this.viewports = computeViewports();
+        this.monitors = computeMonitors();
         Rectangle bounds = new Rectangle();
-        for (Rectangle viewport : this.viewports) {
-            bounds.add(viewport);
+        for (Rectangle monitor : this.monitors) {
+            bounds.add(monitor);
         }
         this.bounds = bounds;
     }
 
+    /**
+     * Creates a new instance that describes the current monitor layout scaled
+     * to within the given limits.
+     *
+     * @param maxWidth  maximum horizontal size
+     * @param maxHeight maximum vertical size
+     */
     public DesktopInfo(final int maxWidth, final int maxHeight) {
         this();
         Rectangle bounds = getBounds();
@@ -53,22 +65,35 @@ public class DesktopInfo {
             scale = ((double) maxHeight) / height;
         }
         scale(bounds, scale);
-        for (Rectangle viewport : getViewports()) {
-            scale(viewport, scale);
+        for (Rectangle monitor : getMonitors()) {
+            scale(monitor, scale);
         }
     }
 
-    protected List<Rectangle> computeViewports() {
-        List<Rectangle> viewports = new ArrayList<Rectangle>();
+    /**
+     * Computes the current monitor layout. Each rectangle returned represent
+     * the dimensions for one monitor.
+     *
+     * @return list of monitor dimensions
+     */
+    protected List<Rectangle> computeMonitors() {
+        List<Rectangle> monitors = new ArrayList<Rectangle>();
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         for (GraphicsDevice gd : ge.getScreenDevices()) {
             for (GraphicsConfiguration gc : gd.getConfigurations()) {
-                viewports.add(gc.getBounds());
+                monitors.add(gc.getBounds());
             }
         }
-        return Collections.unmodifiableList(viewports);
+        return Collections.unmodifiableList(monitors);
     }
 
+    /**
+     * Scales the given rectangle by the given amount. A scale of 1.0 will
+     * produce no change.
+     *
+     * @param rect  rectangle to scale
+     * @param scale amount to scale
+     */
     protected void scale(final Rectangle rect, final double scale) {
         rect.x = (int) (rect.x * scale);
         rect.y = (int) (rect.y * scale);
@@ -76,10 +101,20 @@ public class DesktopInfo {
         rect.height = (int) (rect.height * scale);
     }
 
-    public List<Rectangle> getViewports() {
-        return this.viewports;
+    /**
+     * Returns the dimensions for all monitors.
+     *
+     * @return list of monitor dimensions
+     */
+    public List<Rectangle> getMonitors() {
+        return this.monitors;
     }
 
+    /**
+     * Returns the smallest dimension that all monitors fit inside.
+     *
+     * @return screen bounds
+     */
     public Rectangle getBounds() {
         return this.bounds;
     }

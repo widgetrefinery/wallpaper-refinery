@@ -22,7 +22,9 @@ import org.widgetrefinery.util.event.EventWithPayload;
 import java.io.File;
 
 /**
- * Since: 3/14/12 10:14 PM
+ * Event indicating a new working directory has been selected.
+ *
+ * @since 3/14/12 10:14 PM
  */
 public class SetWorkingDirectoryEvent extends EventWithPayload<File> {
     public SetWorkingDirectoryEvent(final File value) {

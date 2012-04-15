@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 import java.awt.Rectangle;
 
 /**
- * Since: 3/5/12 10:41 PM
+ * @since 3/5/12 10:41 PM
  */
 public class TestDesktopInfo extends TestCase {
     public void testDesktopInfo() {
@@ -32,17 +32,17 @@ public class TestDesktopInfo extends TestCase {
         assertEquals(-1, bounds.y);
         assertEquals(10, bounds.width);
         assertEquals(6, bounds.height);
-        assertEquals(2, desktopInfo.getViewports().size());
-        Rectangle viewport1 = desktopInfo.getViewports().get(0);
-        assertEquals(0, viewport1.x);
-        assertEquals(0, viewport1.y);
-        assertEquals(6, viewport1.width);
-        assertEquals(4, viewport1.height);
-        Rectangle viewport2 = desktopInfo.getViewports().get(1);
-        assertEquals(-4, viewport2.x);
-        assertEquals(-1, viewport2.y);
-        assertEquals(4, viewport2.width);
-        assertEquals(6, viewport2.height);
+        assertEquals(2, desktopInfo.getMonitors().size());
+        Rectangle monitor1 = desktopInfo.getMonitors().get(0);
+        assertEquals(0, monitor1.x);
+        assertEquals(0, monitor1.y);
+        assertEquals(6, monitor1.width);
+        assertEquals(4, monitor1.height);
+        Rectangle monitor2 = desktopInfo.getMonitors().get(1);
+        assertEquals(-4, monitor2.x);
+        assertEquals(-1, monitor2.y);
+        assertEquals(4, monitor2.width);
+        assertEquals(6, monitor2.height);
     }
 
     public void testScale() {
@@ -52,16 +52,16 @@ public class TestDesktopInfo extends TestCase {
         assertEquals(-16, bounds.y);
         assertEquals(166, bounds.width);
         assertEquals(100, bounds.height);
-        Rectangle viewport1 = verticallyBound.getViewports().get(0);
-        assertEquals(0, viewport1.x);
-        assertEquals(0, viewport1.y);
-        assertEquals(100, viewport1.width);
-        assertEquals(66, viewport1.height);
-        Rectangle viewport2 = verticallyBound.getViewports().get(1);
-        assertEquals(-66, viewport2.x);
-        assertEquals(-16, viewport2.y);
-        assertEquals(66, viewport2.width);
-        assertEquals(100, viewport2.height);
+        Rectangle monitor1 = verticallyBound.getMonitors().get(0);
+        assertEquals(0, monitor1.x);
+        assertEquals(0, monitor1.y);
+        assertEquals(100, monitor1.width);
+        assertEquals(66, monitor1.height);
+        Rectangle monitor2 = verticallyBound.getMonitors().get(1);
+        assertEquals(-66, monitor2.x);
+        assertEquals(-16, monitor2.y);
+        assertEquals(66, monitor2.width);
+        assertEquals(100, monitor2.height);
 
         DesktopInfo horizontallyBound = new StubDesktopInfo(100, 200);
         bounds = horizontallyBound.getBounds();
@@ -69,15 +69,15 @@ public class TestDesktopInfo extends TestCase {
         assertEquals(-10, bounds.y);
         assertEquals(100, bounds.width);
         assertEquals(60, bounds.height);
-        viewport1 = horizontallyBound.getViewports().get(0);
-        assertEquals(0, viewport1.x);
-        assertEquals(0, viewport1.y);
-        assertEquals(60, viewport1.width);
-        assertEquals(40, viewport1.height);
-        viewport2 = horizontallyBound.getViewports().get(1);
-        assertEquals(-40, viewport2.x);
-        assertEquals(-10, viewport2.y);
-        assertEquals(40, viewport2.width);
-        assertEquals(60, viewport2.height);
+        monitor1 = horizontallyBound.getMonitors().get(0);
+        assertEquals(0, monitor1.x);
+        assertEquals(0, monitor1.y);
+        assertEquals(60, monitor1.width);
+        assertEquals(40, monitor1.height);
+        monitor2 = horizontallyBound.getMonitors().get(1);
+        assertEquals(-40, monitor2.x);
+        assertEquals(-10, monitor2.y);
+        assertEquals(40, monitor2.width);
+        assertEquals(60, monitor2.height);
     }
 }

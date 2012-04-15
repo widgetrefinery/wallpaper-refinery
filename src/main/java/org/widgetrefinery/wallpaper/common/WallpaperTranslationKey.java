@@ -15,14 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.widgetrefinery.wallpaper.lang;
+package org.widgetrefinery.wallpaper.common;
 
 import org.widgetrefinery.util.lang.TranslationKey;
 
 /**
- * List of translator keys for the application.
+ * List of translation keys for the application.
  *
- * @see {@inheritDoc}
+ * @see org.widgetrefinery.util.lang.Translator
  * @since 4/14/12 11:07 AM
  */
 public enum WallpaperTranslationKey implements TranslationKey {
@@ -37,11 +37,6 @@ public enum WallpaperTranslationKey implements TranslationKey {
         this.key = key;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return {@inheritDoc}
-     */
     @Override
     public String getKey() {
         return this.key;
