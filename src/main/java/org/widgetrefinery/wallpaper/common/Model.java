@@ -154,8 +154,8 @@ public class Model {
 
     /**
      * Determine if the application should configure the OS to use the output
-     * file as the wallpaper. This implies writing something out to the OS
-     * registry or other configuration file. Not all OS's are supported.
+     * file as the wallpaper. When set, {@link #process(boolean)} will call
+     * {@link org.widgetrefinery.wallpaper.os.OSSupport#updateWallpaperSettings(java.io.File)}.
      *
      * @return true if the application should configure the OS
      */
@@ -174,10 +174,8 @@ public class Model {
 
     /**
      * Determine if the application should notify the OS to reload its
-     * wallpaper. The OS might not refresh the wallpaper after the configOS
-     * operation or after saving to the output file if the OS was already
-     * configured to use it as the wallpaper. This indicates the application
-     * should notify the OS explicitly to reload its wallpaper.
+     * wallpaper. When set, {@link #process(boolean)} will call
+     * {@link org.widgetrefinery.wallpaper.os.OSSupport#reloadWallpaperSettings()}.
      *
      * @return true if the application should notify the OS
      */

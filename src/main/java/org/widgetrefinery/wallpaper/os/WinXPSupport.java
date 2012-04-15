@@ -21,9 +21,21 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Since: 3/6/12 10:26 PM
+ * An implementation of {@link org.widgetrefinery.wallpaper.os.OSSupport}
+ * providing support for Windows XP.
+ *
+ * @since 3/6/12 10:26 PM
  */
 public class WinXPSupport extends AbstractOSSupport {
+    /**
+     * Updates the Windows registry to use the new file as the wallpaper. Note
+     * that Windows only supports bitmap images.
+     *
+     * @param imgFile file to use as the wallpaper
+     * @throws IOException          {@inheritDoc}
+     * @throws InterruptedException {@inheritDoc}
+     * @throws RuntimeException     {@inheritDoc}
+     */
     @Override
     public void updateWallpaperSettings(final File imgFile) throws IOException, InterruptedException, RuntimeException {
         exec("reg", "add", "HKCU\\Control Panel\\Desktop", "/V", "Wallpaper", "/T", "REG_SZ", "/F", "/D", imgFile.getAbsolutePath());
@@ -31,6 +43,14 @@ public class WinXPSupport extends AbstractOSSupport {
         exec("reg", "add", "HKCU\\Control Panel\\Desktop", "/V", "TileWallpaper", "/T", "REG_SZ", "/F", "/D", "1"); //0: center, 1: tile
     }
 
+    /**
+     * Invokes the user32.dll library to ask Windows to reload its registry
+     * settings.
+     *
+     * @throws IOException          {@inheritDoc}
+     * @throws InterruptedException {@inheritDoc}
+     * @throws RuntimeException     {@inheritDoc}
+     */
     @Override
     public void reloadWallpaperSettings() throws IOException, InterruptedException, RuntimeException {
         exec("rundll32", "user32.dll,", "UpdatePerUserSystemParameters");

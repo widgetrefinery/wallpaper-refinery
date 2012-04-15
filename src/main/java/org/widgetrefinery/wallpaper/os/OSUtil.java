@@ -18,9 +18,20 @@
 package org.widgetrefinery.wallpaper.os;
 
 /**
- * Since: 3/6/12 10:15 PM
+ * Utility class for returning an appropriate
+ * {@link org.widgetrefinery.wallpaper.os.OSSupport} implementation for the
+ * current OS.
+ *
+ * @since 3/6/12 10:15 PM
  */
 public class OSUtil {
+    /**
+     * Returns an appropriate {@link org.widgetrefinery.wallpaper.os.OSSupport}
+     * implementation for the current OS or null if the current OS is not
+     * supported.
+     *
+     * @return an {@link org.widgetrefinery.wallpaper.os.OSSupport} implementation
+     */
     public static OSSupport getOSSupport() {
         String os = System.getProperty("os.name");
         if ("Windows XP".equals(os)) {
