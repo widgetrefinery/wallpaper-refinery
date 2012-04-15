@@ -18,7 +18,7 @@
 package org.widgetrefinery.wallpaper;
 
 import org.widgetrefinery.util.StringUtil;
-import org.widgetrefinery.util.clParser.*;
+import org.widgetrefinery.util.cl.*;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
