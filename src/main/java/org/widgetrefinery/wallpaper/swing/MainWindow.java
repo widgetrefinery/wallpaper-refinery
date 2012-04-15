@@ -22,14 +22,17 @@ import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.wallpaper.common.Model;
 import org.widgetrefinery.wallpaper.event.SetWorkingDirectoryEvent;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.io.File;
 
 /**
- * Since: 3/12/12 8:41 PM
+ * @since 3/12/12 8:41 PM
  */
 public class MainWindow extends JFrame {
     public MainWindow(final EventBus eventBus, final Model model) throws HeadlessException {
@@ -45,11 +48,22 @@ public class MainWindow extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        PreviewPanel previewPanel = new PreviewPanel(eventBus, model);
-        ControlPanel controlPanel = new ControlPanel(eventBus, model);
+        JPanel controlPanel = new JPanel();
+        BoxLayout controlPanelLayout = new BoxLayout(controlPanel, BoxLayout.Y_AXIS);
+        controlPanel.setLayout(controlPanelLayout);
+        controlPanel.add(new ViewControlPanel(eventBus, model));
+        controlPanel.add(new SaveControlPanel(eventBus, model));
+        int maxWidth = 0;
+        for (Component c : controlPanel.getComponents()) {
+            maxWidth = Math.max(maxWidth, c.getPreferredSize().width);
+        }
+        for (Component c : controlPanel.getComponents()) {
+            c.setMaximumSize(new Dimension(maxWidth, c.getMaximumSize().height));
+        }
+
         JPanel contentPane = new JPanel(new BorderLayout());
-        contentPane.add(previewPanel, BorderLayout.CENTER);
         contentPane.add(controlPanel, BorderLayout.WEST);
+        contentPane.add(new PreviewPanel(eventBus, model), BorderLayout.CENTER);
         add(contentPane);
     }
 

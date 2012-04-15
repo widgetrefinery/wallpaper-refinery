@@ -25,11 +25,12 @@ import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
 import org.widgetrefinery.wallpaper.common.WallpaperTranslationKey;
 import org.widgetrefinery.wallpaper.event.SetInputFileEvent;
-import org.widgetrefinery.wallpaper.os.OSSupport;
 import org.widgetrefinery.wallpaper.os.OSUtil;
 
-import javax.swing.*;
-import javax.swing.border.Border;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Cursor;
@@ -43,64 +44,38 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Since: 3/12/12 10:58 PM
+ * @since 4/15/12 12:17 PM
  */
-public class ControlPanel extends JPanel {
-    private static final Logger logger = Logger.getLogger(ControlPanel.class.getName());
+public class SaveControlPanel extends AbstractControlPanel {
+    private static final Logger logger = Logger.getLogger(SaveControlPanel.class.getName());
 
-    private final Model model;
-
-    public ControlPanel(final EventBus eventBus, final Model model) {
-        this.model = model;
-        JFileChooser fileChooser = new JFileChooser(model.getWorkingDirectory());
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(createOpenPanel(model, fileChooser));
-        add(createSavePanel(eventBus, model, fileChooser));
+    public SaveControlPanel(final EventBus eventBus, final Model model) {
+        super(eventBus, model, "Save");
     }
 
-    protected JPanel createOpenPanel(final Model model, final JFileChooser fileChooser) {
-        JButton browse = new JButton("Browse...");
-        browse.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent actionEvent) {
-                fileChooser.resetChoosableFileFilters();
-                fileChooser.setFileFilter(new FileNameExtensionFilter("Image", "bmp", "gif", "jpg", "jpeg", "png"));
-                fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-                int result = fileChooser.showOpenDialog(ControlPanel.this);
-                if (JFileChooser.APPROVE_OPTION == result) {
-                    File file = fileChooser.getSelectedFile();
-                    model.setWorkingDirectory(file);
+    @Override
+    protected void populate(final EventBus eventBus, final Model model, final JFileChooser fileChooser) {
+        if (null != OSUtil.getOSSupport()) {
+            JCheckBox configureOS = new JCheckBox("Configure OS");
+            configureOS.setSelected(model.isConfigOS());
+            configureOS.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(final ItemEvent itemEvent) {
+                    model.setConfigOS(itemEvent.getStateChange() == ItemEvent.SELECTED);
                 }
-            }
-        });
+            });
+            add(configureOS);
 
-        JPanel panel = createPanel("View");
-        panel.add(browse);
-        return panel;
-    }
-
-    protected JPanel createSavePanel(final EventBus eventBus, final Model model, final JFileChooser fileChooser) {
-        OSSupport osSupport = OSUtil.getOSSupport();
-
-        JCheckBox configureOS = new JCheckBox("Configure OS");
-        configureOS.setEnabled(null != osSupport);
-        configureOS.setSelected(model.isConfigOS());
-        configureOS.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(final ItemEvent itemEvent) {
-                model.setConfigOS(itemEvent.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-
-        JCheckBox refreshOS = new JCheckBox("Refresh OS");
-        refreshOS.setEnabled(null != osSupport);
-        refreshOS.setSelected(model.isRefreshOS());
-        refreshOS.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(final ItemEvent itemEvent) {
-                model.setRefreshOS(itemEvent.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
+            JCheckBox refreshOS = new JCheckBox("Refresh OS");
+            refreshOS.setSelected(model.isRefreshOS());
+            refreshOS.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(final ItemEvent itemEvent) {
+                    model.setRefreshOS(itemEvent.getStateChange() == ItemEvent.SELECTED);
+                }
+            });
+            add(refreshOS);
+        }
 
         final JButton save = new JButton("Save...");
         save.setEnabled(null != model.getInputFile());
@@ -113,15 +88,16 @@ public class ControlPanel extends JPanel {
                 fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Jpeg", "jpg", "jpeg"));
                 fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG", "png"));
                 fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                int result = fileChooser.showSaveDialog(ControlPanel.this);
+                int result = fileChooser.showSaveDialog(SaveControlPanel.this);
                 if (JFileChooser.APPROVE_OPTION == result) {
-                    setOutputFile(fileChooser);
-                    if (doSave()) {
+                    setOutputFile(fileChooser, model);
+                    if (doSave(model)) {
                         save.doClick();
                     }
                 }
             }
         });
+        add(save);
 
         eventBus.add(SetInputFileEvent.class, new EventListener<SetInputFileEvent>() {
             @Override
@@ -129,53 +105,38 @@ public class ControlPanel extends JPanel {
                 save.setEnabled(null != event.getValue());
             }
         });
-
-        JPanel panel = createPanel("Save");
-        panel.add(configureOS);
-        panel.add(refreshOS);
-        panel.add(save);
-        return panel;
     }
 
-    protected JPanel createPanel(final String title) {
-        JPanel panel = new JPanel();
-        Border border = BorderFactory.createTitledBorder(title);
-        panel.setBorder(border);
-        BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
-        panel.setLayout(layout);
-        return panel;
-    }
-
-    protected void setOutputFile(final JFileChooser fileChooser) {
+    protected void setOutputFile(final JFileChooser fileChooser, final Model model) {
         File file = fileChooser.getSelectedFile();
         if (!file.getName().contains(".")) {
             FileFilter fileFilter = fileChooser.getFileFilter();
             if (null != fileFilter && fileFilter instanceof FileNameExtensionFilter) {
-                FileNameExtensionFilter fnef = (FileNameExtensionFilter) fileFilter;
-                String[] extensions = fnef.getExtensions();
+                FileNameExtensionFilter extensionFilter = (FileNameExtensionFilter) fileFilter;
+                String[] extensions = extensionFilter.getExtensions();
                 if (null != extensions && 0 < extensions.length) {
                     file = new File(file.getParentFile(), file.getName() + "." + extensions[0]);
                 }
             }
         }
-        this.model.setOutputFile(file);
+        model.setOutputFile(file);
     }
 
-    protected boolean doSave() {
+    protected boolean doSave(final Model model) {
         boolean retry;
         try {
-            retry = doSave(false);
+            retry = doSave(model, false);
         } catch (BadUserInputException e) {
-            int result = JOptionPane.showConfirmDialog(this, "Overwrite existing file?", this.model.getOutputFile().toString(), JOptionPane.YES_NO_OPTION);
-            retry = JOptionPane.NO_OPTION == result || doSave(true);
+            int result = JOptionPane.showConfirmDialog(this, "Overwrite existing file?", model.getOutputFile().toString(), JOptionPane.YES_NO_OPTION);
+            retry = JOptionPane.NO_OPTION == result || doSave(model, true);
         }
         return retry;
     }
 
-    protected boolean doSave(final boolean overwrite) {
+    protected boolean doSave(final Model model, final boolean overwrite) {
         boolean retry = false;
         try {
-            process(overwrite);
+            process(model, overwrite);
         } catch (BadUserInputException e) {
             if (!overwrite && e.getKey() == WallpaperTranslationKey.PROCESS_ERROR_OUTPUT_EXISTS) {
                 throw e;
@@ -192,10 +153,10 @@ public class ControlPanel extends JPanel {
         return retry;
     }
 
-    protected void process(final boolean overwrite) throws IOException, InterruptedException {
+    protected void process(final Model model, final boolean overwrite) throws IOException, InterruptedException {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try {
-            this.model.process(overwrite);
+            model.process(overwrite);
         } finally {
             setCursor(null);
         }
