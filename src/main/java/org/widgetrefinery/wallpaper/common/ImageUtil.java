@@ -119,7 +119,7 @@ public class ImageUtil {
      * @return formatted image
      */
     public BufferedImage formatImage(final BufferedImage img) {
-        BufferedImage resized = resize(img);
+        BufferedImage resized = resize(img, false);
         return translate(resized);
     }
 
@@ -147,23 +147,28 @@ public class ImageUtil {
      * @return formatted preview image
      */
     public BufferedImage previewImage(final BufferedImage img) {
-        BufferedImage resized = resize(img);
+        BufferedImage resized = resize(img, true);
         return mask(resized);
     }
 
     /**
      * Resize the given image so that it fits within the screen bounds.
      *
-     * @param img image to resize
+     * @param img     image to resize
+     * @param preview set to true for a lower-quality result
      * @return resized image
      */
-    protected BufferedImage resize(final BufferedImage img) {
+    protected BufferedImage resize(final BufferedImage img, boolean preview) {
         BufferedImage result = img;
         Rectangle bounds = getBounds();
         if (img.getWidth() != bounds.width || img.getHeight() != bounds.height) {
             result = new BufferedImage(bounds.width, bounds.height, img.getType());
             Graphics2D g2d = result.createGraphics();
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            if (preview) {
+                g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            } else {
+                g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            }
             g2d.drawImage(img, 0, 0, bounds.width, bounds.height, null);
             g2d.dispose();
         }

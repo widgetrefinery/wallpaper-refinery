@@ -31,11 +31,12 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileFilter;
 
 /**
- * Since: 3/14/12 9:02 PM
+ * @since 3/14/12 9:02 PM
  */
 public class PreviewPanel extends JScrollPane {
     private final Model                        model;
@@ -46,13 +47,20 @@ public class PreviewPanel extends JScrollPane {
     public PreviewPanel(final EventBus eventBus, final Model model) {
         this.model = model;
 
+        int previewSize = model.getPreviewSize();
+        ImageUtil imageUtil = new ImageUtil(new DesktopInfo(previewSize, previewSize));
+        Rectangle bounds = imageUtil.getBounds();
+        PreviewRenderQueue renderQueue = new PreviewRenderQueue(imageUtil);
+        renderQueue.start();
+
         this.listModel = new DefaultListModel<File>();
         this.listWidget = new JList<File>(this.listModel);
-        this.listWidget.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.listWidget.setCellRenderer(new PreviewRenderer(renderQueue, bounds));
+        this.listWidget.setFixedCellHeight(bounds.height);
+        this.listWidget.setFixedCellWidth(bounds.width);
         this.listWidget.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        this.listWidget.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.listWidget.setVisibleRowCount(-1);
-        int previewSize = model.getPreviewSize();
-        this.listWidget.setCellRenderer(new PreviewRenderer(new ImageUtil(new DesktopInfo(previewSize, previewSize))));
         this.listener = new PreviewListSelectionListener(model, this.listWidget);
         this.listWidget.addListSelectionListener(this.listener);
 

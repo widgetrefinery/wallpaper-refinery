@@ -17,102 +17,113 @@
 
 package org.widgetrefinery.wallpaper.swing;
 
-import org.widgetrefinery.wallpaper.common.ImageUtil;
-
+import javax.swing.JComponent;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * Since: 3/14/12 9:03 PM
+ * @since 3/14/12 9:03 PM
  */
-public class PreviewRenderer implements ListCellRenderer<File> {
-    private static final Logger logger = Logger.getLogger(PreviewRenderer.class.getName());
+public class PreviewRenderer extends JComponent implements ListCellRenderer<File> {
+    private final PreviewRenderQueue   renderQueue;
+    private final Rectangle            imageSize;
+    private       PreviewRenderRequest renderRequest;
+    private       boolean              isSelected;
 
-    private final ImageUtil                imageUtil;
-    private final Map<File, PreviewWidget> cache;
-
-    public PreviewRenderer(final ImageUtil imageUtil) {
-        this.imageUtil = imageUtil;
-        this.cache = new HashMap<File, PreviewWidget>();
+    public PreviewRenderer(final PreviewRenderQueue renderQueue, final Rectangle imageSize) {
+        this.renderQueue = renderQueue;
+        this.imageSize = imageSize;
+        setPreferredSize(new Dimension(imageSize.width, imageSize.height));
     }
 
     @Override
-    public Component getListCellRendererComponent(final JList<? extends File> jList,
+    public Component getListCellRendererComponent(final JList<? extends File> list,
                                                   final File file,
                                                   final int index,
                                                   final boolean isSelected,
                                                   final boolean cellHasFocus) {
-        PreviewWidget previewWidget = this.cache.get(file);
-        if (null == previewWidget) {
-            previewWidget = new PreviewWidget(this.imageUtil, file);
-            this.cache.put(file, previewWidget);
-        }
-        previewWidget.setSelected(isSelected);
-        return previewWidget;
+        this.renderRequest = new PreviewRenderRequest(list, index, file);
+        this.isSelected = isSelected;
+        return this;
     }
 
-    protected static class PreviewWidget extends JPanel {
-        private final ImageUtil     imageUtil;
-        private final File          file;
-        private       BufferedImage image;
-        private       long          loadTimestamp;
-        private       boolean       selected;
-
-        public PreviewWidget(final ImageUtil imageUtil, final File file) {
-            this.imageUtil = imageUtil;
-            this.file = file;
-            Rectangle bounds = imageUtil.getBounds();
-            setPreferredSize(new Dimension(bounds.width, bounds.height));
+    @Override
+    protected void paintComponent(final Graphics g) {
+        BufferedImage image = this.renderQueue.render(this.renderRequest);
+        if (null != image) {
+            g.drawImage(image, 0, 0, this.imageSize.width, this.imageSize.height, null);
         }
-
-        protected BufferedImage getImage() {
-            if (null == this.image || this.loadTimestamp < this.file.lastModified()) {
-                try {
-                    this.image = this.imageUtil.previewImage(this.file);
-                    if (null == this.image) {
-                        logger.log(Level.FINE, "failed to load image " + this.file);
-                        this.image = generateErrorImage();
-                    }
-                } catch (Exception e) {
-                    logger.log(Level.FINE, "failed to load image " + this.file, e);
-                    this.image = generateErrorImage();
-                }
-                this.loadTimestamp = System.currentTimeMillis();
-            }
-            return this.image;
+        if (!this.isSelected) {
+            g.setColor(new Color(0, 0, 0, 128));
+            g.fillRect(0, 0, this.imageSize.width, this.imageSize.height);
         }
+    }
 
-        protected BufferedImage generateErrorImage() {
-            Rectangle bounds = this.imageUtil.getBounds();
-            BufferedImage image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_3BYTE_BGR);
-            Graphics2D g2d = image.createGraphics();
-            g2d.setColor(Color.RED);
-            g2d.drawLine(0, 0, bounds.width, bounds.height);
-            g2d.drawLine(0, bounds.height, bounds.width, 0);
-            g2d.dispose();
-            return image;
-        }
+    @Override
+    public void firePropertyChange(final String s, final boolean b, final boolean b1) {
+    }
 
-        public void setSelected(final boolean selected) {
-            this.selected = selected;
-        }
+    @Override
+    public void firePropertyChange(final String s, final int i, final int i1) {
+    }
 
-        @Override
-        protected void paintComponent(final Graphics g) {
-            BufferedImage image = getImage();
-            g.drawImage(image, 0, 0, null);
-            if (!this.selected) {
-                g.setColor(new Color(0, 0, 0, 64));
-                g.fillRect(0, 0, image.getWidth(), image.getHeight());
-            }
-        }
+    @Override
+    public void firePropertyChange(final String s, final char c, final char c1) {
+    }
+
+    @Override
+    protected void firePropertyChange(final String s, final Object o, final Object o1) {
+    }
+
+    @Override
+    public void firePropertyChange(final String s, final byte b, final byte b1) {
+    }
+
+    @Override
+    public void firePropertyChange(final String s, final short i, final short i1) {
+    }
+
+    @Override
+    public void firePropertyChange(final String s, final long l, final long l1) {
+    }
+
+    @Override
+    public void firePropertyChange(final String s, final float v, final float v1) {
+    }
+
+    @Override
+    public void firePropertyChange(final String s, final double v, final double v1) {
+    }
+
+    @Override
+    public void invalidate() {
+    }
+
+    @Override
+    public boolean isOpaque() {
+        return true;
+    }
+
+    @Override
+    public void repaint() {
+    }
+
+    @Override
+    public void repaint(final long l, final int i, final int i1, final int i2, final int i3) {
+    }
+
+    @Override
+    public void repaint(final Rectangle rectangle) {
+    }
+
+    @Override
+    public void revalidate() {
+    }
+
+    @Override
+    public void validate() {
     }
 }
