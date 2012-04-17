@@ -79,5 +79,19 @@ public class TestDesktopInfo extends TestCase {
         assertEquals(-10, monitor2.y);
         assertEquals(40, monitor2.width);
         assertEquals(60, monitor2.height);
+
+        DesktopInfo verticalOnly = new StubDesktopInfo(-1, 100);
+        bounds = verticalOnly.getBounds();
+        assertEquals(-66, bounds.x);
+        assertEquals(-16, bounds.y);
+        assertEquals(166, bounds.width);
+        assertEquals(100, bounds.height);
+
+        DesktopInfo horizontalOnly = new StubDesktopInfo(100, -1);
+        bounds = horizontalOnly.getBounds();
+        assertEquals(-40, bounds.x);
+        assertEquals(-10, bounds.y);
+        assertEquals(100, bounds.width);
+        assertEquals(60, bounds.height);
     }
 }

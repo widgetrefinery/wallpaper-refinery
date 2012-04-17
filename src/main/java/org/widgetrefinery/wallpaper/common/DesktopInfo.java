@@ -48,7 +48,9 @@ public class DesktopInfo {
 
     /**
      * Creates a new instance that describes the current monitor layout scaled
-     * to within the given limits.
+     * to within the given limits. If maxWidth is less than 1, then the layout
+     * will only be scaled to be within maxHeight. Likewise if maxHeight is
+     * less than 1, then the layout will only be scaled to be within maxWidth.
      *
      * @param maxWidth  maximum horizontal size
      * @param maxHeight maximum vertical size
@@ -59,7 +61,13 @@ public class DesktopInfo {
         int width = bounds.width;
         int height = bounds.height;
         double scale;
-        if (((double) width) / height >= ((double) maxWidth) / maxHeight) {
+        if (0 >= maxWidth && 0 >= maxHeight) {
+            scale = 1.0;
+        } else if (0 >= maxWidth) {
+            scale = ((double) maxHeight) / height;
+        } else if (0 >= maxHeight) {
+            scale = ((double) maxWidth) / width;
+        } else if (((double) width) / height >= ((double) maxWidth) / maxHeight) {
             scale = ((double) maxWidth) / width;
         } else {
             scale = ((double) maxHeight) / height;
