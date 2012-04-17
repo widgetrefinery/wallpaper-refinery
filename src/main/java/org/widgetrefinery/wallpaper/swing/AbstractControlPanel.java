@@ -18,6 +18,8 @@
 package org.widgetrefinery.wallpaper.swing;
 
 import org.widgetrefinery.util.event.EventBus;
+import org.widgetrefinery.util.lang.TranslationKey;
+import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
 
 import javax.swing.BorderFactory;
@@ -30,10 +32,10 @@ import javax.swing.border.Border;
  * @since 3/12/12 10:58 PM
  */
 public abstract class AbstractControlPanel extends JPanel {
-    protected AbstractControlPanel(final EventBus eventBus, final Model model, final String title) {
+    protected AbstractControlPanel(final EventBus eventBus, final Model model, final TranslationKey title) {
         JFileChooser fileChooser = new JFileChooser(model.getWorkingDirectory());
 
-        Border border = BorderFactory.createTitledBorder(title);
+        Border border = BorderFactory.createTitledBorder(Translator.get(title));
         setBorder(border);
         BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);
         setLayout(layout);

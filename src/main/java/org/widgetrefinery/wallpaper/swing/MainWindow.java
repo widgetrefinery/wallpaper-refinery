@@ -19,7 +19,9 @@ package org.widgetrefinery.wallpaper.swing;
 
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
+import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
+import org.widgetrefinery.wallpaper.common.WallpaperTranslationKey;
 import org.widgetrefinery.wallpaper.event.SetWorkingDirectoryEvent;
 
 import javax.swing.BoxLayout;
@@ -68,6 +70,6 @@ public class MainWindow extends JFrame {
     }
 
     protected void setTitle(File workingDirectory) {
-        setTitle("Wallpaper Refinery - " + workingDirectory);
+        setTitle(Translator.get(WallpaperTranslationKey.GUI_MAIN_WINDOW_TITLE, workingDirectory));
     }
 }

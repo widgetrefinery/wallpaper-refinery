@@ -88,7 +88,7 @@ public class TestImageUtil extends TestCase {
         assertEquals(6, output.getHeight());
 
         final int hR = 0x7F0000; //Half Red
-        final int aR = 0xFE0100; //Almost full Red
+        final int aR = 0xFF0000; //Almost full Red
         int[][] outputRGB = new int[][]{
                 {aR, fR, fR, fR, hR, hR, hR, hR, hR, hR}, //row 0
                 {fR, fG, fG, fG, fG, fG, fG, fG, fG, fR}, //row 1

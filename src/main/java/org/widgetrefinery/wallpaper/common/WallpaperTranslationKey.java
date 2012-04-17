@@ -34,6 +34,16 @@ public enum WallpaperTranslationKey implements TranslationKey {
     CL_OPT_OUTPUT_DESC("cl.option.output.description"),
     CL_OPT_REFRESH_DESC("cl.option.refresh.description"),
 
+    GUI_MAIN_WINDOW_TITLE("gui.mainWindow.title"),
+    GUI_VIEW_PANEL_TITLE("gui.viewPanel.title"),
+    GUI_VIEW_PANEL_BROWSE_LABEL("gui.viewPanel.browse.label"),
+    GUI_SAVE_PANEL_TITLE("gui.savePanel.title"),
+    GUI_SAVE_PANEL_CONFIG_OS_LABEL("gui.savePanel.configOS.label"),
+    GUI_SAVE_PANEL_REFRESH_OS_LABEL("gui.savePanel.refreshOS.label"),
+    GUI_SAVE_PANEL_SAVE_LABEL("gui.savePanel.save.label"),
+    GUI_SAVE_PANEL_CONFIRM_OVERWRITE_MESSAGE("gui.savePanel.confirmOverwrite.message"),
+    GUI_SAVE_PANEL_ERROR_DIALOG_TITLE("gui.savePanel.errorDialog.title"),
+
     PROCESS_ERROR_NO_INPUT("process.error.no_input"),
     PROCESS_ERROR_INPUT_DOES_NOT_EXIST("process.error.input_does_not_exist"),
     PROCESS_ERROR_BAD_INPUT("process.error.bad_input"),

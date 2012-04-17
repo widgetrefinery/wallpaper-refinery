@@ -18,7 +18,9 @@
 package org.widgetrefinery.wallpaper.swing;
 
 import org.widgetrefinery.util.event.EventBus;
+import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
+import org.widgetrefinery.wallpaper.common.WallpaperTranslationKey;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -32,12 +34,12 @@ import java.io.File;
  */
 public class ViewControlPanel extends AbstractControlPanel {
     public ViewControlPanel(final EventBus eventBus, final Model model) {
-        super(eventBus, model, "View");
+        super(eventBus, model, WallpaperTranslationKey.GUI_VIEW_PANEL_TITLE);
     }
 
     @Override
     protected void populate(final EventBus eventBus, final Model model, final JFileChooser fileChooser) {
-        JButton browse = new JButton("Browse...");
+        JButton browse = new JButton(Translator.get(WallpaperTranslationKey.GUI_VIEW_PANEL_BROWSE_LABEL));
         browse.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {

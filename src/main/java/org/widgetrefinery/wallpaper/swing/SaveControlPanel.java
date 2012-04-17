@@ -50,13 +50,13 @@ public class SaveControlPanel extends AbstractControlPanel {
     private static final Logger logger = Logger.getLogger(SaveControlPanel.class.getName());
 
     public SaveControlPanel(final EventBus eventBus, final Model model) {
-        super(eventBus, model, "Save");
+        super(eventBus, model, WallpaperTranslationKey.GUI_SAVE_PANEL_TITLE);
     }
 
     @Override
     protected void populate(final EventBus eventBus, final Model model, final JFileChooser fileChooser) {
         if (null != OSUtil.getOSSupport()) {
-            JCheckBox configureOS = new JCheckBox("Configure OS");
+            JCheckBox configureOS = new JCheckBox(Translator.get(WallpaperTranslationKey.GUI_SAVE_PANEL_CONFIG_OS_LABEL));
             configureOS.setSelected(model.isConfigOS());
             configureOS.addItemListener(new ItemListener() {
                 @Override
@@ -66,7 +66,7 @@ public class SaveControlPanel extends AbstractControlPanel {
             });
             add(configureOS);
 
-            JCheckBox refreshOS = new JCheckBox("Refresh OS");
+            JCheckBox refreshOS = new JCheckBox(Translator.get(WallpaperTranslationKey.GUI_SAVE_PANEL_REFRESH_OS_LABEL));
             refreshOS.setSelected(model.isRefreshOS());
             refreshOS.addItemListener(new ItemListener() {
                 @Override
@@ -77,7 +77,7 @@ public class SaveControlPanel extends AbstractControlPanel {
             add(refreshOS);
         }
 
-        final JButton save = new JButton("Save...");
+        final JButton save = new JButton(Translator.get(WallpaperTranslationKey.GUI_SAVE_PANEL_SAVE_LABEL));
         save.setEnabled(null != model.getInputFile());
         save.addActionListener(new ActionListener() {
             @Override
@@ -127,7 +127,10 @@ public class SaveControlPanel extends AbstractControlPanel {
         try {
             retry = doSave(model, false);
         } catch (BadUserInputException e) {
-            int result = JOptionPane.showConfirmDialog(this, "Overwrite existing file?", model.getOutputFile().toString(), JOptionPane.YES_NO_OPTION);
+            int result = JOptionPane.showConfirmDialog(this,
+                                                       Translator.get(WallpaperTranslationKey.GUI_SAVE_PANEL_CONFIRM_OVERWRITE_MESSAGE),
+                                                       model.getOutputFile().toString(),
+                                                       JOptionPane.YES_NO_OPTION);
             retry = JOptionPane.NO_OPTION == result || doSave(model, true);
         }
         return retry;
@@ -143,12 +146,18 @@ public class SaveControlPanel extends AbstractControlPanel {
             } else {
                 TranslationKey key = e.getKey();
                 retry = key instanceof WallpaperTranslationKey && ((WallpaperTranslationKey) key).isRetryGuiSave();
-                JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                                              e.getMessage(),
+                                              Translator.get(WallpaperTranslationKey.GUI_SAVE_PANEL_ERROR_DIALOG_TITLE),
+                                              JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception e) {
             String msg = Translator.get(WallpaperTranslationKey.PROCESS_ERROR_OTHER);
             logger.log(Level.WARNING, msg, e);
-            JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                                          msg,
+                                          Translator.get(WallpaperTranslationKey.GUI_SAVE_PANEL_ERROR_DIALOG_TITLE),
+                                          JOptionPane.ERROR_MESSAGE);
         }
         return retry;
     }
