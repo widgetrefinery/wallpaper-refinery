@@ -20,8 +20,11 @@ package org.widgetrefinery.wallpaper.swing;
 import org.widgetrefinery.wallpaper.common.ImageUtil;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collections;
@@ -49,7 +52,7 @@ public class PreviewRenderQueue extends Thread {
     }
 
     public BufferedImage render(final PreviewRenderRequest request) {
-        BufferedImage cachedImage = null;
+        BufferedImage cachedImage;
         CacheRecord record = this.cache.get(request.getFile());
         if (null != record) {
             cachedImage = record.getImage();
@@ -57,6 +60,7 @@ public class PreviewRenderQueue extends Thread {
                 enqueue(request);
             }
         } else {
+            cachedImage = renderPlaceholderImage(this.imageUtil.getBounds(), request.getFile(), Color.WHITE, Color.BLACK);
             enqueue(request);
         }
         return cachedImage;
@@ -95,23 +99,38 @@ public class PreviewRenderQueue extends Thread {
                 image = imageUtil.previewImage(inputFile);
                 if (null == image) {
                     logger.log(Level.WARNING, "failed to render image " + inputFile);
-                    image = renderErrorImage(imageUtil.getBounds());
+                    image = renderPlaceholderImage(imageUtil.getBounds(), inputFile, Color.BLACK, Color.RED);
                 }
             } catch (Exception e) {
                 logger.log(Level.WARNING, "failed to render image " + inputFile, e);
-                image = renderErrorImage(imageUtil.getBounds());
+                image = renderPlaceholderImage(imageUtil.getBounds(), inputFile, Color.BLACK, Color.RED);
             }
             this.cache.put(inputFile, new CacheRecord(imageUtil, image));
             request.done();
         }
     }
 
-    protected BufferedImage renderErrorImage(final Rectangle bounds) {
+    protected BufferedImage renderPlaceholderImage(final Rectangle bounds, final File file, final Color bg, final Color fg) {
         BufferedImage image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D g2d = image.createGraphics();
-        g2d.setColor(Color.RED);
-        g2d.drawLine(0, 0, bounds.width, bounds.height);
-        g2d.drawLine(0, bounds.height, bounds.width, 0);
+        g2d.setColor(bg);
+        g2d.fillRect(0, 0, bounds.width, bounds.height);
+        g2d.setColor(fg);
+        g2d.drawRect(0, 0, bounds.width - 1, bounds.height - 1);
+        Font font = g2d.getFont();
+        FontRenderContext frc = g2d.getFontRenderContext();
+        String text = file.getName();
+        Rectangle2D textBounds = font.getStringBounds(text, frc);
+        if (textBounds.getWidth() + 10 > bounds.width) {
+            Rectangle2D ellipsisBounds = font.getStringBounds("...", frc);
+            int ndx = text.length() - 3;
+            for (; ndx > 0 && textBounds.getWidth() + ellipsisBounds.getWidth() + 10 > bounds.width; ndx--) {
+                textBounds = font.getStringBounds(text, 0, ndx, frc);
+            }
+            text = text.substring(0, ndx) + "...";
+            textBounds = font.getStringBounds(text, frc);
+        }
+        g2d.drawString(text, (bounds.width - (int) textBounds.getWidth()) / 2, (bounds.height - (int) (textBounds.getHeight() + textBounds.getY())) / 2);
         g2d.dispose();
         return image;
     }
