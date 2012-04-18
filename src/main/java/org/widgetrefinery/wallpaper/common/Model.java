@@ -38,7 +38,7 @@ public class Model {
     private       File     workingDirectory;
     private       File     inputFile;
     private       File     outputFile;
-    private       int      previewSize;
+    private       int      thumbnailsPerRow;
     private       boolean  configOS;
     private       boolean  refreshOS;
 
@@ -60,7 +60,7 @@ public class Model {
     public Model(final EventBus eventBus, final File workingDirectory) {
         this.eventBus = eventBus;
         setWorkingDirectory(workingDirectory);
-        setPreviewSize(200);
+        setThumbnailsPerRow(4);
     }
 
     /**
@@ -132,22 +132,21 @@ public class Model {
     }
 
     /**
-     * Get the preview image size. The gui will restrict the preview images to
-     * a max width and height of this value.
+     * Get the number of thumbnails to display per row.
      *
-     * @return max preview dimension
+     * @return thumbnails per row
      */
-    public int getPreviewSize() {
-        return this.previewSize;
+    public int getThumbnailsPerRow() {
+        return this.thumbnailsPerRow;
     }
 
     /**
-     * Set the preview image size to a new value.
+     * Set the number of preview thumbnails to display per row.
      *
-     * @param previewSize new preview image size
+     * @param thumbnailsPerRow thumbnails per row
      */
-    public void setPreviewSize(final int previewSize) {
-        this.previewSize = previewSize;
+    public void setThumbnailsPerRow(final int thumbnailsPerRow) {
+        this.thumbnailsPerRow = thumbnailsPerRow;
     }
 
     /**

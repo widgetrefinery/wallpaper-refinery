@@ -22,16 +22,25 @@ import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
 import org.widgetrefinery.wallpaper.common.WallpaperTranslationKey;
+import org.widgetrefinery.wallpaper.event.ResizeFinishedEvent;
+import org.widgetrefinery.wallpaper.event.ResizingEvent;
 import org.widgetrefinery.wallpaper.event.SetWorkingDirectoryEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @since 3/12/12 8:41 PM
@@ -44,6 +53,7 @@ public class MainWindow extends JFrame {
                 setTitle(event.getValue());
             }
         });
+        addComponentListener(new ResizeListener(eventBus));
 
         setTitle(model.getWorkingDirectory());
         setSize(640, 480);
@@ -71,5 +81,40 @@ public class MainWindow extends JFrame {
 
     protected void setTitle(File workingDirectory) {
         setTitle(Translator.get(WallpaperTranslationKey.GUI_MAIN_WINDOW_TITLE, workingDirectory));
+    }
+
+    protected static class ResizeListener extends ComponentAdapter {
+        private final EventBus       eventBus;
+        private final Lock           lock;
+        private       ActionListener listener;
+
+        public ResizeListener(final EventBus eventBus) {
+            this.eventBus = eventBus;
+            this.lock = new ReentrantLock();
+        }
+
+        @Override
+        public void componentResized(final ComponentEvent componentEvent) {
+            this.lock.lock();
+            try {
+                this.eventBus.fireEvent(new ResizingEvent());
+                ActionListener listener = new ActionListener() {
+                    @Override
+                    public void actionPerformed(final ActionEvent actionEvent) {
+                        ResizeListener.this.lock.lock();
+                        if (this == ResizeListener.this.listener) {
+                            ResizeListener.this.eventBus.fireEvent(new ResizeFinishedEvent());
+                        }
+                        ResizeListener.this.lock.unlock();
+                    }
+                };
+                this.listener = listener;
+                Timer timer = new Timer(1000, listener);
+                timer.setRepeats(false);
+                timer.start();
+            } finally {
+                this.lock.unlock();
+            }
+        }
     }
 }

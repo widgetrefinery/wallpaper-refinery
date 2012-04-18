@@ -17,18 +17,15 @@
 
 package org.widgetrefinery.wallpaper.event;
 
-import org.widgetrefinery.util.event.EventWithPayload;
-
-import java.io.File;
+import org.widgetrefinery.util.event.Event;
 
 /**
- * Event indicating a new input file as been selected.
+ * Event indicating the user has not resized the window in a while. Listeners
+ * can now perform any post-resize work.
  *
+ * @see ResizingEvent
  * @see org.widgetrefinery.util.event.EventBus
- * @since 4/11/12 10:08 PM
+ * @since 4/17/12 9:45 PM
  */
-public class SetInputFileEvent extends EventWithPayload<File> {
-    public SetInputFileEvent(final File value) {
-        super(value);
-    }
+public class ResizeFinishedEvent implements Event {
 }

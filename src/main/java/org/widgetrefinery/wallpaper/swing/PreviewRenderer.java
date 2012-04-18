@@ -20,7 +20,10 @@ package org.widgetrefinery.wallpaper.swing;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -29,14 +32,11 @@ import java.io.File;
  */
 public class PreviewRenderer extends JComponent implements ListCellRenderer<File> {
     private final PreviewRenderQueue   renderQueue;
-    private final Rectangle            imageSize;
     private       PreviewRenderRequest renderRequest;
     private       boolean              isSelected;
 
-    public PreviewRenderer(final PreviewRenderQueue renderQueue, final Rectangle imageSize) {
+    public PreviewRenderer(final PreviewRenderQueue renderQueue) {
         this.renderQueue = renderQueue;
-        this.imageSize = imageSize;
-        setPreferredSize(new Dimension(imageSize.width, imageSize.height));
     }
 
     @Override
@@ -53,12 +53,13 @@ public class PreviewRenderer extends JComponent implements ListCellRenderer<File
     @Override
     protected void paintComponent(final Graphics g) {
         BufferedImage image = this.renderQueue.render(this.renderRequest);
+        JList list = this.renderRequest.getList();
         if (null != image) {
-            g.drawImage(image, 0, 0, this.imageSize.width, this.imageSize.height, null);
+            g.drawImage(image, 0, 0, list.getFixedCellWidth(), list.getFixedCellHeight(), null);
         }
         if (!this.isSelected) {
             g.setColor(new Color(0, 0, 0, 128));
-            g.fillRect(0, 0, this.imageSize.width, this.imageSize.height);
+            g.fillRect(0, 0, list.getFixedCellWidth(), list.getFixedCellHeight());
         }
     }
 

@@ -22,13 +22,12 @@ import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.wallpaper.common.DesktopInfo;
 import org.widgetrefinery.wallpaper.common.ImageUtil;
 import org.widgetrefinery.wallpaper.common.Model;
+import org.widgetrefinery.wallpaper.event.ResizeFinishedEvent;
+import org.widgetrefinery.wallpaper.event.ResizingEvent;
 import org.widgetrefinery.wallpaper.event.SetWorkingDirectoryEvent;
 
 import javax.imageio.ImageIO;
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Rectangle;
@@ -47,15 +46,14 @@ public class PreviewPanel extends JScrollPane {
     public PreviewPanel(final EventBus eventBus, final Model model) {
         this.model = model;
 
-        int previewSize = model.getPreviewSize();
-        ImageUtil imageUtil = new ImageUtil(new DesktopInfo(previewSize, previewSize));
+        ImageUtil imageUtil = new ImageUtil(new DesktopInfo(200, -1));
         Rectangle bounds = imageUtil.getBounds();
-        PreviewRenderQueue renderQueue = new PreviewRenderQueue(imageUtil);
+        final PreviewRenderQueue renderQueue = new PreviewRenderQueue(imageUtil);
         renderQueue.start();
 
         this.listModel = new DefaultListModel<File>();
         this.listWidget = new JList<File>(this.listModel);
-        this.listWidget.setCellRenderer(new PreviewRenderer(renderQueue, bounds));
+        this.listWidget.setCellRenderer(new PreviewRenderer(renderQueue));
         this.listWidget.setFixedCellHeight(bounds.height);
         this.listWidget.setFixedCellWidth(bounds.width);
         this.listWidget.setLayoutOrientation(JList.HORIZONTAL_WRAP);
@@ -64,6 +62,7 @@ public class PreviewPanel extends JScrollPane {
         this.listener = new PreviewListSelectionListener(model, this.listWidget);
         this.listWidget.addListSelectionListener(this.listener);
 
+        setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         setViewportView(this.listWidget);
         refresh();
 
@@ -73,9 +72,21 @@ public class PreviewPanel extends JScrollPane {
                 refresh();
             }
         });
+        eventBus.add(ResizingEvent.class, new EventListener<ResizingEvent>() {
+            @Override
+            public void notify(final ResizingEvent event) {
+                resize(renderQueue, false);
+            }
+        });
+        eventBus.add(ResizeFinishedEvent.class, new EventListener<ResizeFinishedEvent>() {
+            @Override
+            public void notify(final ResizeFinishedEvent event) {
+                resize(renderQueue, true);
+            }
+        });
     }
 
-    public void refresh() {
+    protected void refresh() {
         this.listener.setEnable(false);
         try {
             this.listModel.clear();
@@ -100,6 +111,18 @@ public class PreviewPanel extends JScrollPane {
             }
         } finally {
             this.listener.setEnable(true);
+        }
+    }
+
+    protected void resize(final PreviewRenderQueue renderQueue, final boolean fullReconfigure) {
+        int width = getViewport().getWidth() / this.model.getThumbnailsPerRow();
+        ImageUtil imageUtil = new ImageUtil(new DesktopInfo(width, -1));
+        Rectangle bounds = imageUtil.getBounds();
+        this.listWidget.setFixedCellHeight(bounds.height);
+        this.listWidget.setFixedCellWidth(bounds.width);
+        if (fullReconfigure) {
+            renderQueue.setImageUtil(imageUtil);
+            this.listWidget.repaint();
         }
     }
 

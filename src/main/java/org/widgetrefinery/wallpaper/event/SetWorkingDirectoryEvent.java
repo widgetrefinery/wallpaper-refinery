@@ -24,6 +24,7 @@ import java.io.File;
 /**
  * Event indicating a new working directory has been selected.
  *
+ * @see org.widgetrefinery.util.event.EventBus
  * @since 3/14/12 10:14 PM
  */
 public class SetWorkingDirectoryEvent extends EventWithPayload<File> {

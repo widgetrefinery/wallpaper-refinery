@@ -94,18 +94,22 @@ public class PreviewRenderQueue extends Thread {
         File inputFile = request.getFile();
         CacheRecord record = this.cache.get(inputFile);
         if (request.isStillValid() && (null == record || record.isStale(imageUtil))) {
-            BufferedImage image;
-            try {
-                image = imageUtil.previewImage(inputFile);
-                if (null == image) {
-                    logger.log(Level.WARNING, "failed to render image " + inputFile);
-                    image = renderPlaceholderImage(imageUtil.getBounds(), inputFile, Color.BLACK, Color.RED);
+            BufferedImage image = null;
+            if (null == record || !record.isPlaceholder()) {
+                try {
+                    image = imageUtil.previewImage(inputFile);
+                    if (null == image) {
+                        logger.log(Level.WARNING, "failed to render image " + inputFile);
+                    }
+                } catch (Exception e) {
+                    logger.log(Level.WARNING, "failed to render image " + inputFile, e);
                 }
-            } catch (Exception e) {
-                logger.log(Level.WARNING, "failed to render image " + inputFile, e);
+            }
+            boolean isPlaceholder = null == image;
+            if (isPlaceholder) {
                 image = renderPlaceholderImage(imageUtil.getBounds(), inputFile, Color.BLACK, Color.RED);
             }
-            this.cache.put(inputFile, new CacheRecord(imageUtil, image));
+            this.cache.put(inputFile, new CacheRecord(imageUtil, image, isPlaceholder));
             request.done();
         }
     }
@@ -155,10 +159,12 @@ public class PreviewRenderQueue extends Thread {
     protected static class CacheRecord {
         private final ImageUtil     imageUtil;
         private final BufferedImage image;
+        private final boolean       isPlaceholder;
 
-        public CacheRecord(final ImageUtil imageUtil, final BufferedImage image) {
+        public CacheRecord(final ImageUtil imageUtil, final BufferedImage image, final boolean isPlaceholder) {
             this.imageUtil = imageUtil;
             this.image = image;
+            this.isPlaceholder = isPlaceholder;
         }
 
         public boolean isStale(final ImageUtil imageUtil) {
@@ -167,6 +173,10 @@ public class PreviewRenderQueue extends Thread {
 
         public BufferedImage getImage() {
             return this.image;
+        }
+
+        public boolean isPlaceholder() {
+            return this.isPlaceholder;
         }
     }
 }

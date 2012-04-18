@@ -39,6 +39,10 @@ public class PreviewRenderRequest {
         return this.list.getFirstVisibleIndex() <= this.index && this.list.getLastVisibleIndex() >= this.index;
     }
 
+    public JList getList() {
+        return this.list;
+    }
+
     public File getFile() {
         return this.file;
     }
