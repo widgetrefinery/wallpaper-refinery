@@ -26,10 +26,7 @@ import org.widgetrefinery.wallpaper.event.ResizeFinishedEvent;
 import org.widgetrefinery.wallpaper.event.ResizingEvent;
 import org.widgetrefinery.wallpaper.event.SetWorkingDirectoryEvent;
 
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.Timer;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -68,9 +65,10 @@ public class MainWindow extends JFrame {
         int maxWidth = 0;
         for (Component c : controlPanel.getComponents()) {
             maxWidth = Math.max(maxWidth, c.getPreferredSize().width);
+            ((JComponent) c).setAlignmentX(Component.LEFT_ALIGNMENT);
         }
         for (Component c : controlPanel.getComponents()) {
-            c.setMaximumSize(new Dimension(maxWidth, c.getMaximumSize().height));
+            c.setMaximumSize(new Dimension(maxWidth, c.getPreferredSize().height));
         }
 
         JPanel contentPane = new JPanel(new BorderLayout());

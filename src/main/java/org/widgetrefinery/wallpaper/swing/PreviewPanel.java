@@ -24,6 +24,7 @@ import org.widgetrefinery.wallpaper.common.ImageUtil;
 import org.widgetrefinery.wallpaper.common.Model;
 import org.widgetrefinery.wallpaper.event.ResizeFinishedEvent;
 import org.widgetrefinery.wallpaper.event.ResizingEvent;
+import org.widgetrefinery.wallpaper.event.SetThumbnailsPerRowEvent;
 import org.widgetrefinery.wallpaper.event.SetWorkingDirectoryEvent;
 
 import javax.imageio.ImageIO;
@@ -70,6 +71,12 @@ public class PreviewPanel extends JScrollPane {
             @Override
             public void notify(final SetWorkingDirectoryEvent event) {
                 refresh();
+            }
+        });
+        eventBus.add(SetThumbnailsPerRowEvent.class, new EventListener<SetThumbnailsPerRowEvent>() {
+            @Override
+            public void notify(final SetThumbnailsPerRowEvent event) {
+                resize(renderQueue, true);
             }
         });
         eventBus.add(ResizingEvent.class, new EventListener<ResizingEvent>() {

@@ -22,9 +22,9 @@ import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
 import org.widgetrefinery.wallpaper.common.WallpaperTranslationKey;
 
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -53,6 +53,31 @@ public class ViewControlPanel extends AbstractControlPanel {
                 }
             }
         });
+        browse.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(browse);
+
+        add(Box.createVerticalStrut(4));
+
+        JPanel zoomPanel = new JPanel();
+        BoxLayout zoomPanelLayout = new BoxLayout(zoomPanel, BoxLayout.X_AXIS);
+        zoomPanel.setLayout(zoomPanelLayout);
+        zoomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        add(zoomPanel);
+
+        final JComboBox<Integer> zoomInput = new JComboBox<Integer>(new Integer[]{2, 3, 4, 5, 6, 7, 8});
+        zoomInput.setSelectedItem(model.getThumbnailsPerRow());
+        zoomInput.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
+                model.setThumbnailsPerRow((Integer) zoomInput.getSelectedItem());
+            }
+        });
+        zoomInput.setMaximumSize(zoomInput.getPreferredSize());
+        zoomPanel.add(zoomInput);
+
+        zoomPanel.add(Box.createHorizontalStrut(4));
+
+        JLabel zoomLabel = new JLabel("Zoom");
+        zoomPanel.add(zoomLabel);
     }
 }

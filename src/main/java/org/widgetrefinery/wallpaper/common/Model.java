@@ -20,6 +20,7 @@ package org.widgetrefinery.wallpaper.common;
 import org.widgetrefinery.util.BadUserInputException;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.wallpaper.event.SetInputFileEvent;
+import org.widgetrefinery.wallpaper.event.SetThumbnailsPerRowEvent;
 import org.widgetrefinery.wallpaper.event.SetWorkingDirectoryEvent;
 import org.widgetrefinery.wallpaper.os.OSSupport;
 import org.widgetrefinery.wallpaper.os.OSUtil;
@@ -147,6 +148,7 @@ public class Model {
      */
     public void setThumbnailsPerRow(final int thumbnailsPerRow) {
         this.thumbnailsPerRow = thumbnailsPerRow;
+        this.eventBus.fireEvent(new SetThumbnailsPerRowEvent(thumbnailsPerRow));
     }
 
     /**
