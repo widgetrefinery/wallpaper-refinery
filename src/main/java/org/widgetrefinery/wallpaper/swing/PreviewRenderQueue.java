@@ -134,7 +134,7 @@ public class PreviewRenderQueue extends Thread {
             text = text.substring(0, ndx) + "...";
             textBounds = font.getStringBounds(text, frc);
         }
-        g2d.drawString(text, (bounds.width - (int) textBounds.getWidth()) / 2, (bounds.height - (int) (textBounds.getHeight() + textBounds.getY())) / 2);
+        g2d.drawString(text, (bounds.width - (int) textBounds.getWidth()) / 2, (int) ((bounds.height - textBounds.getHeight()) / 2 - textBounds.getY()));
         g2d.dispose();
         return image;
     }
