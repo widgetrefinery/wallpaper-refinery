@@ -29,6 +29,7 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Utility class for reading and writing images. It uses
@@ -39,6 +40,8 @@ import java.util.List;
  * @since 2/20/12 5:24 PM
  */
 public class ImageUtil {
+    private static final Logger logger = Logger.getLogger(ImageUtil.class.getName());
+
     private final DesktopInfo   info;
     private       BufferedImage mask;
 
@@ -108,8 +111,13 @@ public class ImageUtil {
      * @throws IOException if an error occurred loading the image
      */
     public BufferedImage formatImage(final File file) throws IOException {
+        long start = System.currentTimeMillis();
         BufferedImage img = ImageIO.read(file);
-        return null != img ? formatImage(img) : null;
+        long mid = System.currentTimeMillis();
+        BufferedImage result = null != img ? formatImage(img) : null;
+        long end = System.currentTimeMillis();
+        logger.fine(file.getName() + ": " + (mid - start) + ", " + (end - mid));
+        return result;
     }
 
     /**
@@ -134,8 +142,13 @@ public class ImageUtil {
      * @throws IOException if an error occurred loading the image
      */
     public BufferedImage previewImage(final File file) throws IOException {
+        long start = System.currentTimeMillis();
         BufferedImage img = ImageIO.read(file);
-        return null != img ? previewImage(img) : null;
+        long mid = System.currentTimeMillis();
+        BufferedImage result = null != img ? previewImage(img) : null;
+        long end = System.currentTimeMillis();
+        logger.fine(file.getName() + ": " + (mid - start) + ", " + (end - mid));
+        return result;
     }
 
     /**

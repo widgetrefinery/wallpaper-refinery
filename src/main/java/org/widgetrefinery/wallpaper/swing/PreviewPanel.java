@@ -75,7 +75,14 @@ public class PreviewPanel extends JScrollPane {
         eventBus.add(ResizingEvent.class, new EventListener<ResizingEvent>() {
             @Override
             public void notify(final ResizingEvent event) {
-                resize(renderQueue, false);
+                eventBus.remove(this);
+                eventBus.add(ResizingEvent.class, new EventListener<ResizingEvent>() {
+                    @Override
+                    public void notify(final ResizingEvent event) {
+                        resize(renderQueue, false);
+                    }
+                });
+                resize(renderQueue, true);
             }
         });
         eventBus.add(ResizeFinishedEvent.class, new EventListener<ResizeFinishedEvent>() {
