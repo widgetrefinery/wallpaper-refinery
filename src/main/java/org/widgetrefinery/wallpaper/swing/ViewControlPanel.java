@@ -18,15 +18,18 @@
 package org.widgetrefinery.wallpaper.swing;
 
 import org.widgetrefinery.util.event.EventBus;
+import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
 import org.widgetrefinery.wallpaper.common.WallpaperTranslationKey;
+import org.widgetrefinery.wallpaper.event.SetThumbnailsPerRowEvent;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 
 /**
@@ -40,6 +43,7 @@ public class ViewControlPanel extends AbstractControlPanel {
     @Override
     protected void populate(final EventBus eventBus, final Model model, final JFileChooser fileChooser) {
         JButton browse = new JButton(Translator.get(WallpaperTranslationKey.GUI_VIEW_BROWSE_LABEL));
+        browse.setMnemonic(KeyEvent.VK_B);
         browse.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
@@ -65,7 +69,13 @@ public class ViewControlPanel extends AbstractControlPanel {
         zoomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(zoomPanel);
 
-        final JComboBox<Integer> zoomInput = new JComboBox<Integer>(new Integer[]{2, 3, 4, 5, 6, 7, 8});
+        int minZoom = model.getMinThumbnailsPerRow();
+        int maxZoom = model.getMaxThumbnailsPerRow();
+        Integer[] zoomLevels = new Integer[maxZoom - minZoom + 1];
+        for (int ndx = 0; ndx < zoomLevels.length; ndx++) {
+            zoomLevels[ndx] = minZoom + ndx;
+        }
+        final JComboBox<Integer> zoomInput = new JComboBox<Integer>(zoomLevels);
         zoomInput.setSelectedItem(model.getThumbnailsPerRow());
         zoomInput.setToolTipText(zoomPanel.getToolTipText());
         zoomInput.addActionListener(new ActionListener() {
@@ -80,7 +90,16 @@ public class ViewControlPanel extends AbstractControlPanel {
         zoomPanel.add(Box.createHorizontalStrut(4));
 
         JLabel zoomLabel = new JLabel(Translator.get(WallpaperTranslationKey.GUI_VIEW_ZOOM_LABEL));
+        zoomLabel.setDisplayedMnemonic(KeyEvent.VK_Z);
+        zoomLabel.setLabelFor(zoomInput);
         zoomLabel.setToolTipText(zoomPanel.getToolTipText());
         zoomPanel.add(zoomLabel);
+
+        eventBus.add(SetThumbnailsPerRowEvent.class, new EventListener<SetThumbnailsPerRowEvent>() {
+            @Override
+            public void notify(final SetThumbnailsPerRowEvent event) {
+                zoomInput.setSelectedItem(event.getValue());
+            }
+        });
     }
 }

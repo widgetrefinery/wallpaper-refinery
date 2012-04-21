@@ -83,14 +83,20 @@ public class Model {
      * @param workingDirectory new working directory
      */
     public void setWorkingDirectory(final File workingDirectory) {
+        boolean fireEvent;
         if (null != workingDirectory && workingDirectory.isFile()) {
-            this.workingDirectory = workingDirectory.getParentFile();
+            File parent = workingDirectory.getParentFile();
+            fireEvent = shouldFireEvent(parent, this.workingDirectory);
+            this.workingDirectory = parent;
             setInputFile(workingDirectory);
         } else {
+            fireEvent = shouldFireEvent(workingDirectory, this.workingDirectory);
             this.workingDirectory = workingDirectory;
             setInputFile(null);
         }
-        this.eventBus.fireEvent(new SetWorkingDirectoryEvent(this.workingDirectory));
+        if (fireEvent) {
+            this.eventBus.fireEvent(new SetWorkingDirectoryEvent(this.workingDirectory));
+        }
     }
 
     /**
@@ -109,8 +115,11 @@ public class Model {
      * @param inputFile new input file
      */
     public void setInputFile(final File inputFile) {
+        boolean fireEvent = shouldFireEvent(inputFile, this.inputFile);
         this.inputFile = inputFile;
-        this.eventBus.fireEvent(new SetInputFileEvent(this.inputFile));
+        if (fireEvent) {
+            this.eventBus.fireEvent(new SetInputFileEvent(this.inputFile));
+        }
     }
 
     /**
@@ -133,6 +142,24 @@ public class Model {
     }
 
     /**
+     * Get the minimum number of thumbnails to display per row.
+     *
+     * @return min thumbnails per row
+     */
+    public int getMinThumbnailsPerRow() {
+        return 2;
+    }
+
+    /**
+     * Get the maximum number of thumbnails to display per row.
+     *
+     * @return max thumbnails per row
+     */
+    public int getMaxThumbnailsPerRow() {
+        return 8;
+    }
+
+    /**
      * Get the number of thumbnails to display per row.
      *
      * @return thumbnails per row
@@ -146,9 +173,14 @@ public class Model {
      *
      * @param thumbnailsPerRow thumbnails per row
      */
-    public void setThumbnailsPerRow(final int thumbnailsPerRow) {
+    public void setThumbnailsPerRow(int thumbnailsPerRow) {
+        thumbnailsPerRow = Math.max(getMinThumbnailsPerRow(), thumbnailsPerRow);
+        thumbnailsPerRow = Math.min(getMaxThumbnailsPerRow(), thumbnailsPerRow);
+        boolean fireEvent = shouldFireEvent(thumbnailsPerRow, this.thumbnailsPerRow);
         this.thumbnailsPerRow = thumbnailsPerRow;
-        this.eventBus.fireEvent(new SetThumbnailsPerRowEvent(thumbnailsPerRow));
+        if (fireEvent) {
+            this.eventBus.fireEvent(new SetThumbnailsPerRowEvent(thumbnailsPerRow));
+        }
     }
 
     /**
@@ -190,6 +222,14 @@ public class Model {
      */
     public void setRefreshOS(final boolean refreshOS) {
         this.refreshOS = refreshOS;
+    }
+
+    protected boolean shouldFireEvent(Object v1, Object v2) {
+        if (null != v1) {
+            return !v1.equals(v2);
+        } else {
+            return null != v2;
+        }
     }
 
     /**

@@ -35,6 +35,8 @@ import javax.swing.event.MouseInputAdapter;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
@@ -74,6 +76,36 @@ public class PreviewPanel extends JScrollPane {
             public void mouseMoved(final MouseEvent e) {
                 //trick the ToolTipManager into hiding the tooltip whenever the mouse is moved
                 ToolTipManager.sharedInstance().mousePressed(e);
+            }
+        });
+
+        InputMap inputMap = getInputMap(WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = getActionMap();
+        String grabFocusAction = "grabFocus";
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), grabFocusAction);
+        actionMap.put(grabFocusAction, new AbstractAction() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
+                PreviewPanel.this.listWidget.grabFocus();
+            }
+        });
+        String zoomInAction = "zoomIn";
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, KeyEvent.SHIFT_MASK), zoomInAction);
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0), zoomInAction);
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ADD, 0), zoomInAction);
+        actionMap.put(zoomInAction, new AbstractAction() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
+                model.setThumbnailsPerRow(model.getThumbnailsPerRow() - 1);
+            }
+        });
+        String zoomOutAction = "zoomOut";
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), zoomOutAction);
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, 0), zoomOutAction);
+        actionMap.put(zoomOutAction, new AbstractAction() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
+                model.setThumbnailsPerRow(model.getThumbnailsPerRow() + 1);
             }
         });
 
