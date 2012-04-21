@@ -53,7 +53,9 @@ public enum WallpaperTranslationKey implements TranslationKey {
     PROCESS_ERROR_OUTPUT_EXISTS("process.error.output_exists"),
     PROCESS_ERROR_BAD_OUTPUT_NAME("process.error.bad_output_name", true),
     PROCESS_ERROR_SAME_INPUT_OUTPUT("process.error.same_input_output", true),
-    PROCESS_ERROR_OTHER("process.error.other");
+    PROCESS_ERROR_OTHER("process.error.other"),
+
+    CONFIG_GUI_WIDTH("config.gui.width");
 
     private final String  key;
     private final boolean retryGuiSave;

@@ -17,6 +17,7 @@
 
 package org.widgetrefinery.wallpaper.swing;
 
+import org.widgetrefinery.util.StringUtil;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.util.lang.Translator;
@@ -65,7 +66,9 @@ public class ViewControlPanel extends AbstractControlPanel {
         JPanel zoomPanel = new JPanel();
         BoxLayout zoomPanelLayout = new BoxLayout(zoomPanel, BoxLayout.X_AXIS);
         zoomPanel.setLayout(zoomPanelLayout);
-        zoomPanel.setToolTipText(SwingUtil.getToolTipText(WallpaperTranslationKey.GUI_VIEW_ZOOM_TOOLTIP));
+        String zoomTooltip = StringUtil.swingWordWrap(WallpaperTranslationKey.GUI_VIEW_ZOOM_TOOLTIP,
+                                                      WallpaperTranslationKey.CONFIG_GUI_WIDTH);
+        zoomPanel.setToolTipText(zoomTooltip);
         zoomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(zoomPanel);
 

@@ -18,6 +18,7 @@
 package org.widgetrefinery.wallpaper.swing;
 
 import org.widgetrefinery.util.BadUserInputException;
+import org.widgetrefinery.util.StringUtil;
 import org.widgetrefinery.util.event.EventBus;
 import org.widgetrefinery.util.event.EventListener;
 import org.widgetrefinery.util.lang.TranslationKey;
@@ -56,7 +57,9 @@ public class SaveControlPanel extends AbstractControlPanel {
             JCheckBox configureOS = new JCheckBox(Translator.get(WallpaperTranslationKey.GUI_SAVE_CONFIG_OS_LABEL));
             configureOS.setMnemonic(KeyEvent.VK_C);
             configureOS.setSelected(model.isConfigOS());
-            configureOS.setToolTipText(SwingUtil.getToolTipText(WallpaperTranslationKey.CL_OPT_CONFIGURE_DESC));
+            String configureOSTooltip = StringUtil.swingWordWrap(WallpaperTranslationKey.CL_OPT_CONFIGURE_DESC,
+                                                                 WallpaperTranslationKey.CONFIG_GUI_WIDTH);
+            configureOS.setToolTipText(configureOSTooltip);
             configureOS.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(final ItemEvent itemEvent) {
@@ -68,7 +71,9 @@ public class SaveControlPanel extends AbstractControlPanel {
             JCheckBox refreshOS = new JCheckBox(Translator.get(WallpaperTranslationKey.GUI_SAVE_REFRESH_OS_LABEL));
             refreshOS.setMnemonic(KeyEvent.VK_R);
             refreshOS.setSelected(model.isRefreshOS());
-            refreshOS.setToolTipText(SwingUtil.getToolTipText(WallpaperTranslationKey.CL_OPT_REFRESH_DESC));
+            String refreshOSTooltip = StringUtil.swingWordWrap(WallpaperTranslationKey.CL_OPT_REFRESH_DESC,
+                                                               WallpaperTranslationKey.CONFIG_GUI_WIDTH);
+            refreshOS.setToolTipText(refreshOSTooltip);
             refreshOS.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(final ItemEvent itemEvent) {
