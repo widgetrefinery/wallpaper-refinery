@@ -31,7 +31,11 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.MouseInputAdapter;
+import java.awt.Cursor;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
 
@@ -62,6 +66,9 @@ public class PreviewPanel extends JScrollPane {
         this.listWidget.setVisibleRowCount(-1);
         this.listener = new PreviewListSelectionListener(model, this.listWidget);
         this.listWidget.addListSelectionListener(this.listener);
+        ClickDragScrollListener mouseListener = new ClickDragScrollListener(getViewport());
+        this.listWidget.addMouseListener(mouseListener);
+        this.listWidget.addMouseMotionListener(mouseListener);
 
         setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         setViewportView(this.listWidget);
@@ -177,6 +184,52 @@ public class PreviewPanel extends JScrollPane {
                 }
             }
             return result;
+        }
+    }
+
+    protected static class ClickDragScrollListener extends MouseInputAdapter {
+        private final JViewport viewport;
+        private       Point     initialPosition;
+
+        public ClickDragScrollListener(final JViewport viewport) {
+            this.viewport = viewport;
+        }
+
+        @Override
+        public void mousePressed(final MouseEvent e) {
+            if (MouseEvent.BUTTON3 == e.getButton()) {
+                Point viewPosition = this.viewport.getViewPosition();
+                Point mousePosition = this.viewport.getMousePosition(true);
+                if (null != viewPosition && null != mousePosition) {
+                    int x = viewPosition.x;
+                    int y = viewPosition.y + mousePosition.y;
+                    this.initialPosition = new Point(x, y);
+                    this.viewport.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                }
+            }
+        }
+
+        @Override
+        public void mouseReleased(final MouseEvent e) {
+            this.initialPosition = null;
+            this.viewport.setCursor(null);
+        }
+
+        @Override
+        public void mouseDragged(final MouseEvent e) {
+            if (null != this.initialPosition) {
+                Point mousePosition = this.viewport.getMousePosition(true);
+                if (null != mousePosition) {
+                    int x = this.initialPosition.x;
+                    int y = this.initialPosition.y - mousePosition.y;
+                    if (0 > y) {
+                        y = 0;
+                    } else if (y > this.viewport.getView().getHeight() - this.viewport.getExtentSize().height) {
+                        y = this.viewport.getView().getHeight() - this.viewport.getExtentSize().height;
+                    }
+                    this.viewport.setViewPosition(new Point(x, y));
+                }
+            }
         }
     }
 }
