@@ -17,6 +17,7 @@
 
 package org.widgetrefinery.wallpaper.swing;
 
+import org.widgetrefinery.wallpaper.common.BasicCache;
 import org.widgetrefinery.wallpaper.common.ImageUtil;
 
 import java.awt.Color;
@@ -28,7 +29,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,7 +47,7 @@ public class PreviewRenderQueue extends Thread {
 
     public PreviewRenderQueue(final ImageUtil imageUtil) {
         this.queue = new LinkedBlockingQueue<PreviewRenderRequest>();
-        this.cache = Collections.synchronizedMap(new Cache());
+        this.cache = Collections.synchronizedMap(new BasicCache<File, CacheRecord>());
         setImageUtil(imageUtil);
     }
 
@@ -137,23 +137,6 @@ public class PreviewRenderQueue extends Thread {
         g2d.drawString(text, (bounds.width - (int) textBounds.getWidth()) / 2, (int) ((bounds.height - textBounds.getHeight()) / 2 - textBounds.getY()));
         g2d.dispose();
         return image;
-    }
-
-    protected static class Cache extends LinkedHashMap<File, CacheRecord> {
-        private static final int   CACHE_SIZE  = 256;
-        private static final float LOAD_FACTOR = 0.75F; //default LinkedHashMap load factor according to jdk javadoc
-
-        private final int size;
-
-        public Cache() {
-            super(CACHE_SIZE + 1, LOAD_FACTOR, true);
-            this.size = CACHE_SIZE;
-        }
-
-        @Override
-        protected boolean removeEldestEntry(final Map.Entry<File, CacheRecord> eldest) {
-            return size() > this.size;
-        }
     }
 
     protected static class CacheRecord {
