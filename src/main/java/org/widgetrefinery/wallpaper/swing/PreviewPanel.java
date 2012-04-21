@@ -69,6 +69,13 @@ public class PreviewPanel extends JScrollPane {
         ClickDragScrollListener mouseListener = new ClickDragScrollListener(getViewport());
         this.listWidget.addMouseListener(mouseListener);
         this.listWidget.addMouseMotionListener(mouseListener);
+        this.listWidget.addMouseMotionListener(new MouseInputAdapter() {
+            @Override
+            public void mouseMoved(final MouseEvent e) {
+                //trick the ToolTipManager into hiding the tooltip whenever the mouse is moved
+                ToolTipManager.sharedInstance().mousePressed(e);
+            }
+        });
 
         setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         setViewportView(this.listWidget);

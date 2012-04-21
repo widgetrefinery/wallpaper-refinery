@@ -78,7 +78,7 @@ public class MainWindow extends JFrame {
     }
 
     protected void setTitle(File workingDirectory) {
-        setTitle(Translator.get(WallpaperTranslationKey.GUI_MAIN_WINDOW_TITLE, workingDirectory));
+        setTitle(Translator.get(WallpaperTranslationKey.GUI_TITLE, workingDirectory));
     }
 
     protected static class ResizeListener extends ComponentAdapter {

@@ -34,12 +34,12 @@ import java.io.File;
  */
 public class ViewControlPanel extends AbstractControlPanel {
     public ViewControlPanel(final EventBus eventBus, final Model model) {
-        super(eventBus, model, WallpaperTranslationKey.GUI_VIEW_PANEL_TITLE);
+        super(eventBus, model, WallpaperTranslationKey.GUI_VIEW_TITLE);
     }
 
     @Override
     protected void populate(final EventBus eventBus, final Model model, final JFileChooser fileChooser) {
-        JButton browse = new JButton(Translator.get(WallpaperTranslationKey.GUI_VIEW_PANEL_BROWSE_LABEL));
+        JButton browse = new JButton(Translator.get(WallpaperTranslationKey.GUI_VIEW_BROWSE_LABEL));
         browse.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
@@ -61,11 +61,13 @@ public class ViewControlPanel extends AbstractControlPanel {
         JPanel zoomPanel = new JPanel();
         BoxLayout zoomPanelLayout = new BoxLayout(zoomPanel, BoxLayout.X_AXIS);
         zoomPanel.setLayout(zoomPanelLayout);
+        zoomPanel.setToolTipText(SwingUtil.getToolTipText(WallpaperTranslationKey.GUI_VIEW_ZOOM_TOOLTIP));
         zoomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(zoomPanel);
 
         final JComboBox<Integer> zoomInput = new JComboBox<Integer>(new Integer[]{2, 3, 4, 5, 6, 7, 8});
         zoomInput.setSelectedItem(model.getThumbnailsPerRow());
+        zoomInput.setToolTipText(zoomPanel.getToolTipText());
         zoomInput.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
@@ -77,7 +79,8 @@ public class ViewControlPanel extends AbstractControlPanel {
 
         zoomPanel.add(Box.createHorizontalStrut(4));
 
-        JLabel zoomLabel = new JLabel("Zoom");
+        JLabel zoomLabel = new JLabel(Translator.get(WallpaperTranslationKey.GUI_VIEW_ZOOM_LABEL));
+        zoomLabel.setToolTipText(zoomPanel.getToolTipText());
         zoomPanel.add(zoomLabel);
     }
 }

@@ -64,6 +64,11 @@ public class PreviewRenderer extends JComponent implements ListCellRenderer<File
     }
 
     @Override
+    public String getToolTipText() {
+        return this.renderRequest.getFile().getName();
+    }
+
+    @Override
     public void firePropertyChange(final String s, final boolean b, final boolean b1) {
     }
 
