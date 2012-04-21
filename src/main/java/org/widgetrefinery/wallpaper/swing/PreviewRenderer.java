@@ -58,7 +58,7 @@ public class PreviewRenderer extends JComponent implements ListCellRenderer<File
             g.drawImage(image, 0, 0, list.getFixedCellWidth(), list.getFixedCellHeight(), null);
         }
         if (!this.isSelected) {
-            g.setColor(new Color(0, 0, 0, 128));
+            g.setColor(new Color(0, 0, 0, 128)); //semi-transparent black
             g.fillRect(0, 0, list.getFixedCellWidth(), list.getFixedCellHeight());
         }
     }

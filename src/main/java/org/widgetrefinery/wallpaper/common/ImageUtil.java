@@ -28,7 +28,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -116,7 +118,9 @@ public class ImageUtil {
         long mid = System.currentTimeMillis();
         BufferedImage result = null != img ? formatImage(img) : null;
         long end = System.currentTimeMillis();
-        logger.fine(file.getName() + ": " + (mid - start) + ", " + (end - mid));
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine(MessageFormat.format("load: {0} msec, render: {1} msec, file: {2}", mid - start, end - mid, file.getName()));
+        }
         return result;
     }
 
@@ -147,7 +151,9 @@ public class ImageUtil {
         long mid = System.currentTimeMillis();
         BufferedImage result = null != img ? previewImage(img) : null;
         long end = System.currentTimeMillis();
-        logger.fine(file.getName() + ": " + (mid - start) + ", " + (end - mid));
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine(MessageFormat.format("load: {0} msec, render: {1} msec, file: {2}", mid - start, end - mid, file.getName()));
+        }
         return result;
     }
 
