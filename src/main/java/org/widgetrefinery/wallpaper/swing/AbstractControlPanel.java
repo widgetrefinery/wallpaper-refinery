@@ -22,16 +22,16 @@ import org.widgetrefinery.util.lang.TranslationKey;
 import org.widgetrefinery.util.lang.Translator;
 import org.widgetrefinery.wallpaper.common.Model;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JFileChooser;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.Border;
+import java.awt.Component;
 
 /**
  * @since 3/12/12 10:58 PM
  */
 public abstract class AbstractControlPanel extends JPanel {
+    private static final int PADDING = 4;
+
     protected AbstractControlPanel(final EventBus eventBus, final Model model, final TranslationKey title) {
         JFileChooser fileChooser = new JFileChooser(model.getWorkingDirectory());
 
@@ -43,4 +43,12 @@ public abstract class AbstractControlPanel extends JPanel {
     }
 
     protected abstract void populate(EventBus eventBus, Model model, JFileChooser fileChooser);
+
+    protected Component createVerticalPadding() {
+        return Box.createVerticalStrut(PADDING);
+    }
+
+    protected Component createHorizontalPadding() {
+        return Box.createHorizontalStrut(PADDING);
+    }
 }

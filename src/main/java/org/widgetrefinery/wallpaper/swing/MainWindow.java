@@ -61,13 +61,17 @@ public class MainWindow extends JFrame {
         controlPanel.setLayout(controlPanelLayout);
         controlPanel.add(new ViewControlPanel(eventBus, model));
         controlPanel.add(new SaveControlPanel(eventBus, model));
+        controlPanel.add(Box.createVerticalGlue());
+        controlPanel.add(new AboutControlPanel(eventBus, model));
         int maxWidth = 0;
         for (Component c : controlPanel.getComponents()) {
             maxWidth = Math.max(maxWidth, c.getPreferredSize().width);
             ((JComponent) c).setAlignmentX(Component.LEFT_ALIGNMENT);
         }
         for (Component c : controlPanel.getComponents()) {
-            c.setMaximumSize(new Dimension(maxWidth, c.getPreferredSize().height));
+            if (!(c instanceof Box.Filler)) {
+                c.setMaximumSize(new Dimension(maxWidth, c.getPreferredSize().height));
+            }
         }
 
         JPanel contentPane = new JPanel(new BorderLayout());

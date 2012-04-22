@@ -62,6 +62,9 @@ public class Cli extends AbstractCli {
                                                       Translator.get(WallpaperTranslationKey.CL_OPT_INPUT_DESC)),
                                          new Argument("l|license",
                                                       new BooleanArgumentType(),
+                                                      Translator.get(WallpaperTranslationKey.CL_OPT_LICENSE_ABSTRACT_DESC)),
+                                         new Argument("L|full-license",
+                                                      new BooleanArgumentType(),
                                                       Translator.get(WallpaperTranslationKey.CL_OPT_LICENSE_DESC)),
                                          new Argument("o|output",
                                                       new StringArgumentType(),
@@ -82,6 +85,10 @@ public class Cli extends AbstractCli {
             System.exit(0);
         }
         if (Boolean.TRUE == clParser.getValue("license")) {
+            clParser.getLicenseAbstract(System.out);
+            System.exit(0);
+        }
+        if (Boolean.TRUE == clParser.getValue("full-license")) {
             clParser.getLicense(System.out);
             System.exit(0);
         }

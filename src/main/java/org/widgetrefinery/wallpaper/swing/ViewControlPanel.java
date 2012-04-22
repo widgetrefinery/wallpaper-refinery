@@ -61,7 +61,7 @@ public class ViewControlPanel extends AbstractControlPanel {
         browse.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(browse);
 
-        add(Box.createVerticalStrut(4));
+        add(createVerticalPadding());
 
         JPanel zoomPanel = new JPanel();
         BoxLayout zoomPanelLayout = new BoxLayout(zoomPanel, BoxLayout.X_AXIS);
@@ -90,7 +90,7 @@ public class ViewControlPanel extends AbstractControlPanel {
         zoomInput.setMaximumSize(zoomInput.getPreferredSize());
         zoomPanel.add(zoomInput);
 
-        zoomPanel.add(Box.createHorizontalStrut(4));
+        zoomPanel.add(createHorizontalPadding());
 
         JLabel zoomLabel = new JLabel(Translator.get(WallpaperTranslationKey.GUI_VIEW_ZOOM_LABEL));
         zoomLabel.setDisplayedMnemonic(KeyEvent.VK_Z);

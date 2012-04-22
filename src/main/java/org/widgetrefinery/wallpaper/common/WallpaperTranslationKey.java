@@ -30,6 +30,7 @@ public enum WallpaperTranslationKey implements TranslationKey {
     CL_OPT_FORCE_DESC("cl.option.force.description"),
     CL_OPT_HELP_DESC("cl.option.help.description"),
     CL_OPT_INPUT_DESC("cl.option.input.description"),
+    CL_OPT_LICENSE_ABSTRACT_DESC("cl.option.license_abstract.description"),
     CL_OPT_LICENSE_DESC("cl.option.license.description"),
     CL_OPT_OUTPUT_DESC("cl.option.output.description"),
     CL_OPT_REFRESH_DESC("cl.option.refresh.description"),
@@ -45,6 +46,10 @@ public enum WallpaperTranslationKey implements TranslationKey {
     GUI_SAVE_SAVE_LABEL("gui.save.save.label"),
     GUI_SAVE_CONFIRM_OVERWRITE_MESSAGE("gui.save.confirmOverwrite.message"),
     GUI_SAVE_ERROR_DIALOG_TITLE("gui.save.errorDialog.title"),
+    GUI_ABOUT_TITLE("gui.about.title"),
+    GUI_ABOUT_HELP_LABEL("gui.about.help.label"),
+    GUI_ABOUT_HELP_MSG("gui.about.help.msg"),
+    GUI_ABOUT_LICENSE_LABEL("gui.about.license.label"),
 
     PROCESS_ERROR_NO_INPUT("process.error.no_input"),
     PROCESS_ERROR_INPUT_DOES_NOT_EXIST("process.error.input_does_not_exist"),
