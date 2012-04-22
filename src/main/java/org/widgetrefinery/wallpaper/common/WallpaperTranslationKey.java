@@ -34,6 +34,8 @@ public enum WallpaperTranslationKey implements TranslationKey {
     CL_OPT_LICENSE_DESC("cl.option.license.description"),
     CL_OPT_OUTPUT_DESC("cl.option.output.description"),
     CL_OPT_REFRESH_DESC("cl.option.refresh.description"),
+    CL_OPT_VERSION_DESC("cl.option.version.description"),
+    CL_OPT_VERSION_MSG("cl.option.version.msg"),
 
     GUI_TITLE("gui.title"),
     GUI_VIEW_TITLE("gui.view.title"),

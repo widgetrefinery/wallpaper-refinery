@@ -55,7 +55,7 @@ public class AboutControlPanel extends AbstractControlPanel {
             public void actionPerformed(final ActionEvent actionEvent) {
                 JOptionPane.showMessageDialog(AboutControlPanel.this.container,
                                               Translator.get(WallpaperTranslationKey.GUI_ABOUT_HELP_MSG),
-                                              Translator.get(WallpaperTranslationKey.GUI_ABOUT_HELP_LABEL),
+                                              Translator.get(WallpaperTranslationKey.CL_OPT_VERSION_MSG),
                                               JOptionPane.PLAIN_MESSAGE);
             }
         });
@@ -80,7 +80,7 @@ public class AboutControlPanel extends AbstractControlPanel {
                 }
                 JOptionPane.showMessageDialog(AboutControlPanel.this.container,
                                               msg,
-                                              Translator.get(WallpaperTranslationKey.GUI_ABOUT_LICENSE_LABEL),
+                                              Translator.get(WallpaperTranslationKey.CL_OPT_VERSION_MSG),
                                               JOptionPane.PLAIN_MESSAGE);
             }
         });
