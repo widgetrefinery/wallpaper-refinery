@@ -32,6 +32,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MouseInputAdapter;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -60,6 +61,7 @@ public class PreviewPanel extends JScrollPane {
 
         this.listModel = new DefaultListModel<File>();
         this.listWidget = new JList<File>(this.listModel);
+        this.listWidget.setBackground(Color.BLACK);
         this.listWidget.setCellRenderer(new PreviewRenderer(renderQueue));
         this.listWidget.setFixedCellHeight(bounds.height);
         this.listWidget.setFixedCellWidth(bounds.width);
