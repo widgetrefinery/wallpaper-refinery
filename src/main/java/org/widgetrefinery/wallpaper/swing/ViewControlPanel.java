@@ -28,6 +28,7 @@ import org.widgetrefinery.wallpaper.event.SetThumbnailsPerRowEvent;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -37,8 +38,11 @@ import java.io.File;
  * @since 4/15/12 12:13 PM
  */
 public class ViewControlPanel extends AbstractControlPanel {
-    public ViewControlPanel(final EventBus eventBus, final Model model) {
+    private final Container container;
+
+    public ViewControlPanel(final EventBus eventBus, final Model model, final Container container) {
         super(eventBus, model, WallpaperTranslationKey.GUI_VIEW_TITLE);
+        this.container = container;
     }
 
     @Override
@@ -51,7 +55,7 @@ public class ViewControlPanel extends AbstractControlPanel {
                 fileChooser.resetChoosableFileFilters();
                 fileChooser.setFileFilter(new FileNameExtensionFilter("Image", "bmp", "gif", "jpg", "jpeg", "png"));
                 fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-                int result = fileChooser.showOpenDialog(ViewControlPanel.this);
+                int result = fileChooser.showOpenDialog(ViewControlPanel.this.container);
                 if (JFileChooser.APPROVE_OPTION == result) {
                     File file = fileChooser.getSelectedFile();
                     model.setWorkingDirectory(file);

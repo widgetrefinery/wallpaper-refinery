@@ -29,6 +29,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -38,8 +39,11 @@ import java.io.IOException;
  * @since 4/21/12 3:33 PM
  */
 public class AboutControlPanel extends AbstractControlPanel {
-    public AboutControlPanel(final EventBus eventBus, final Model model) {
+    private final Container container;
+
+    public AboutControlPanel(final EventBus eventBus, final Model model, final Container container) {
         super(eventBus, model, WallpaperTranslationKey.GUI_ABOUT_TITLE);
+        this.container = container;
     }
 
     @Override
@@ -49,7 +53,7 @@ public class AboutControlPanel extends AbstractControlPanel {
         help.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
-                JOptionPane.showMessageDialog(AboutControlPanel.this,
+                JOptionPane.showMessageDialog(AboutControlPanel.this.container,
                                               Translator.get(WallpaperTranslationKey.GUI_ABOUT_HELP_MSG),
                                               Translator.get(WallpaperTranslationKey.GUI_ABOUT_HELP_LABEL),
                                               JOptionPane.PLAIN_MESSAGE);
@@ -74,7 +78,7 @@ public class AboutControlPanel extends AbstractControlPanel {
                 } catch (IOException e) {
                     msg = Translator.get(UtilTranslationKey.CL_ERROR_MISSING_LICENSE);
                 }
-                JOptionPane.showMessageDialog(AboutControlPanel.this,
+                JOptionPane.showMessageDialog(AboutControlPanel.this.container,
                                               msg,
                                               Translator.get(WallpaperTranslationKey.GUI_ABOUT_LICENSE_LABEL),
                                               JOptionPane.PLAIN_MESSAGE);

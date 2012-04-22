@@ -59,18 +59,25 @@ public class MainWindow extends JFrame {
         JPanel controlPanel = new JPanel();
         BoxLayout controlPanelLayout = new BoxLayout(controlPanel, BoxLayout.Y_AXIS);
         controlPanel.setLayout(controlPanelLayout);
-        controlPanel.add(new ViewControlPanel(eventBus, model));
-        controlPanel.add(new SaveControlPanel(eventBus, model));
+        controlPanel.add(new ViewControlPanel(eventBus, model, this));
+        controlPanel.add(new SaveControlPanel(eventBus, model, this));
         controlPanel.add(Box.createVerticalGlue());
-        controlPanel.add(new AboutControlPanel(eventBus, model));
+        controlPanel.add(new AboutControlPanel(eventBus, model, this));
         int maxWidth = 0;
         for (Component c : controlPanel.getComponents()) {
             maxWidth = Math.max(maxWidth, c.getPreferredSize().width);
             ((JComponent) c).setAlignmentX(Component.LEFT_ALIGNMENT);
         }
         for (Component c : controlPanel.getComponents()) {
-            if (!(c instanceof Box.Filler)) {
-                c.setMaximumSize(new Dimension(maxWidth, c.getPreferredSize().height));
+            if (c instanceof JPanel) {
+                JPanel panel = (JPanel) c;
+                panel.setMaximumSize(new Dimension(maxWidth, c.getPreferredSize().height));
+                for (Component child : panel.getComponents()) {
+                    //make all JButtons fill up available horizontal space
+                    if (child instanceof JButton) {
+                        child.setMaximumSize(new Dimension(maxWidth, child.getMaximumSize().height));
+                    }
+                }
             }
         }
 

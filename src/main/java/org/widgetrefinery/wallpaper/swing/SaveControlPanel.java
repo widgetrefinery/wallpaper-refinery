@@ -34,6 +34,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.event.*;
 import java.io.File;
@@ -47,8 +48,11 @@ import java.util.logging.Logger;
 public class SaveControlPanel extends AbstractControlPanel {
     private static final Logger logger = Logger.getLogger(SaveControlPanel.class.getName());
 
-    public SaveControlPanel(final EventBus eventBus, final Model model) {
+    private final Container container;
+
+    public SaveControlPanel(final EventBus eventBus, final Model model, final Container container) {
         super(eventBus, model, WallpaperTranslationKey.GUI_SAVE_TITLE);
+        this.container = container;
     }
 
     @Override
@@ -95,7 +99,7 @@ public class SaveControlPanel extends AbstractControlPanel {
                 fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Jpeg", "jpg", "jpeg"));
                 fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG", "png"));
                 fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                int result = fileChooser.showSaveDialog(SaveControlPanel.this);
+                int result = fileChooser.showSaveDialog(SaveControlPanel.this.container);
                 if (JFileChooser.APPROVE_OPTION == result) {
                     setOutputFile(fileChooser, model);
                     if (doSave(model)) {
@@ -134,7 +138,7 @@ public class SaveControlPanel extends AbstractControlPanel {
         try {
             retry = doSave(model, false);
         } catch (BadUserInputException e) {
-            int result = JOptionPane.showConfirmDialog(this,
+            int result = JOptionPane.showConfirmDialog(this.container,
                                                        Translator.get(WallpaperTranslationKey.GUI_SAVE_CONFIRM_OVERWRITE_MESSAGE),
                                                        model.getOutputFile().toString(),
                                                        JOptionPane.YES_NO_OPTION);
@@ -153,7 +157,7 @@ public class SaveControlPanel extends AbstractControlPanel {
             } else {
                 TranslationKey key = e.getKey();
                 retry = key instanceof WallpaperTranslationKey && ((WallpaperTranslationKey) key).isRetryGuiSave();
-                JOptionPane.showMessageDialog(this,
+                JOptionPane.showMessageDialog(this.container,
                                               e.getMessage(),
                                               Translator.get(WallpaperTranslationKey.GUI_SAVE_ERROR_DIALOG_TITLE),
                                               JOptionPane.ERROR_MESSAGE);
@@ -161,7 +165,7 @@ public class SaveControlPanel extends AbstractControlPanel {
         } catch (Exception e) {
             String msg = Translator.get(WallpaperTranslationKey.PROCESS_ERROR_OTHER);
             logger.log(Level.WARNING, msg, e);
-            JOptionPane.showMessageDialog(this,
+            JOptionPane.showMessageDialog(this.container,
                                           msg,
                                           Translator.get(WallpaperTranslationKey.GUI_SAVE_ERROR_DIALOG_TITLE),
                                           JOptionPane.ERROR_MESSAGE);
